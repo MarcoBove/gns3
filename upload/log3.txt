@@ -1,0 +1,171 @@
+10/11/2025 17:25:38 INFO: Starting Wazuh installation assistant. Wazuh version: 4.14.0
+10/11/2025 17:25:38 INFO: Verbose logging redirected to /var/log/wazuh-install.log
+Hit:1 http://it.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://it.archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://it.archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists...
+10/11/2025 17:25:43 INFO: Verifying that your system meets the recommended minimum hardware requirements.
+10/11/2025 17:25:43 INFO: Wazuh web interface port will be 443.
+Hit:1 http://it.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://it.archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://it.archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists...
+gpg: keyring '/usr/share/keyrings/wazuh.gpg' created
+gpg: key 96B3EE5F29111145: public key "Wazuh.com (Wazuh Signing Key) <support@wazuh.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main
+Hit:1 http://it.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://it.archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://it.archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Get:5 https://packages.wazuh.com/4.x/apt stable InRelease [17.3 kB]
+Get:6 https://packages.wazuh.com/4.x/apt stable/main amd64 Packages [48.9 kB]
+Fetched 66.1 kB in 1s (127 kB/s)
+Reading package lists...
+10/11/2025 17:25:51 INFO: Wazuh repository added.
+10/11/2025 17:25:51 INFO: --- Configuration files ---
+10/11/2025 17:25:51 INFO: Generating configuration files.
+10/11/2025 17:25:51 INFO: Generating the root certificate.
+10/11/2025 17:25:51 INFO: Generating Admin certificates.
+10/11/2025 17:25:52 INFO: Generating Wazuh indexer certificates.
+10/11/2025 17:25:52 INFO: Generating Filebeat certificates.
+10/11/2025 17:25:52 INFO: Generating Wazuh dashboard certificates.
+10/11/2025 17:25:53 INFO: Created wazuh-install-files.tar. It contains the Wazuh cluster key, certificates, and passwords necessary for installation.
+10/11/2025 17:25:53 INFO: --- Wazuh indexer ---
+10/11/2025 17:25:53 INFO: Starting Wazuh indexer installation.
+Reading package lists... Building dependency tree... Reading state information... The following NEW packages will be installed: wazuh-indexer 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded. Need to get 0 B/856 MB of archives. After this operation, 1,082 MB of additional disk space will be used. Selecting previously unselected package wazuh-indexer. (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 90685 files and directories currently installed.) Preparing to unpack .../wazuh-indexer_4.14.0-1_amd64.deb ... Running Wazuh Indexer Pre-Installation Script Unpacking wazuh-indexer (4.14.0-1) ... Setting up wazuh-indexer (4.14.0-1) ... Running Wazuh Indexer Post-Installation Script ### NOT starting on installation, please execute the following statements to configure wazuh-indexer service to start automatically using systemd sudo systemctl daemon-reload sudo systemctl enable wazuh-indexer.service ### You can start wazuh-indexer service by executing sudo systemctl start wazuh-indexer.service Running kernel seems to be up-to-date. No services need to be restarted. No containers need to be restarted. No user sessions are running outdated binaries. No VM guests are running outdated hypervisor (qemu) binaries on this host.
+10/11/2025 17:26:09 INFO: Wazuh indexer installation finished.
+10/11/2025 17:26:09 INFO: Wazuh indexer post-install configuration finished.
+10/11/2025 17:26:09 INFO: Starting service wazuh-indexer.
+Synchronizing state of wazuh-indexer.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable wazuh-indexer
+10/11/2025 17:26:26 INFO: wazuh-indexer service started.
+10/11/2025 17:26:26 INFO: Initializing Wazuh indexer cluster security settings.
+Security Admin v7
+Will connect to 127.0.0.1:9200 ... done
+Connected as "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
+OpenSearch Version: 2.19.3
+Contacting opensearch cluster 'opensearch' and wait for YELLOW clusterstate ...
+Clustername: wazuh-cluster
+Clusterstate: GREEN
+Number of nodes: 1
+Number of data nodes: 1
+.opendistro_security index does not exists, attempt to create it ... done (0-all replicas)
+Populate config from /etc/wazuh-indexer/opensearch-security/
+Will update '/config' with /etc/wazuh-indexer/opensearch-security/config.yml 
+   SUCC: Configuration for 'config' created or updated
+Will update '/roles' with /etc/wazuh-indexer/opensearch-security/roles.yml 
+   SUCC: Configuration for 'roles' created or updated
+Will update '/rolesmapping' with /etc/wazuh-indexer/opensearch-security/roles_mapping.yml 
+   SUCC: Configuration for 'rolesmapping' created or updated
+Will update '/internalusers' with /etc/wazuh-indexer/opensearch-security/internal_users.yml 
+   SUCC: Configuration for 'internalusers' created or updated
+Will update '/actiongroups' with /etc/wazuh-indexer/opensearch-security/action_groups.yml 
+   SUCC: Configuration for 'actiongroups' created or updated
+Will update '/tenants' with /etc/wazuh-indexer/opensearch-security/tenants.yml 
+   SUCC: Configuration for 'tenants' created or updated
+Will update '/nodesdn' with /etc/wazuh-indexer/opensearch-security/nodes_dn.yml 
+   SUCC: Configuration for 'nodesdn' created or updated
+Will update '/whitelist' with /etc/wazuh-indexer/opensearch-security/whitelist.yml 
+   SUCC: Configuration for 'whitelist' created or updated
+Will update '/audit' with /etc/wazuh-indexer/opensearch-security/audit.yml 
+   SUCC: Configuration for 'audit' created or updated
+Will update '/allowlist' with /etc/wazuh-indexer/opensearch-security/allowlist.yml 
+   SUCC: Configuration for 'allowlist' created or updated
+SUCC: Expected 10 config types for node {"updated_config_types":["allowlist","tenants","rolesmapping","nodesdn","audit","roles","whitelist","actiongroups","config","internalusers"],"updated_config_size":10,"message":null} is 10 (["allowlist","tenants","rolesmapping","nodesdn","audit","roles","whitelist","actiongroups","config","internalusers"]) due to: null
+Done with success
+10/11/2025 17:26:31 INFO: Wazuh indexer cluster security configuration initialized.
+10/11/2025 17:26:31 INFO: Wazuh indexer cluster initialized.
+10/11/2025 17:26:31 INFO: --- Wazuh server ---
+10/11/2025 17:26:31 INFO: Starting the Wazuh manager installation.
+Reading package lists... Building dependency tree... Reading state information... Suggested packages: expect The following NEW packages will be installed: wazuh-manager 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded. Need to get 0 B/448 MB of archives. After this operation, 1,041 MB of additional disk space will be used. Selecting previously unselected package wazuh-manager. (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 91871 files and directories currently installed.) Preparing to unpack .../wazuh-manager_4.14.0-1_amd64.deb ... Unpacking wazuh-manager (4.14.0-1) ... Setting up wazuh-manager (4.14.0-1) ... Running kernel seems to be up-to-date. No services need to be restarted. No containers need to be restarted. No user sessions are running outdated binaries. No VM guests are running outdated hypervisor (qemu) binaries on this host.
+10/11/2025 17:27:34 INFO: Wazuh manager installation finished.
+10/11/2025 17:27:34 INFO: Wazuh manager vulnerability detection configuration finished.
+10/11/2025 17:27:34 INFO: Starting service wazuh-manager.
+Created symlink /etc/systemd/system/multi-user.target.wants/wazuh-manager.service → /usr/lib/systemd/system/wazuh-manager.service.
+10/11/2025 17:27:50 INFO: wazuh-manager service started.
+10/11/2025 17:27:50 INFO: Starting Filebeat installation.
+Reading package lists... Building dependency tree... Reading state information... The following NEW packages will be installed: filebeat 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded. Need to get 0 B/22.1 MB of archives. After this operation, 73.6 MB of additional disk space will be used. Selecting previously unselected package filebeat. (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 116515 files and directories currently installed.) Preparing to unpack .../filebeat_7.10.2-2_amd64.deb ... Unpacking filebeat (7.10.2-2) ... Setting up filebeat (7.10.2-2) ... Running kernel seems to be up-to-date. No services need to be restarted. No containers need to be restarted. No user sessions are running outdated binaries. No VM guests are running outdated hypervisor (qemu) binaries on this host.
+10/11/2025 17:28:01 INFO: Filebeat installation finished.
+wazuh/
+wazuh/alerts/
+wazuh/alerts/ingest/
+wazuh/alerts/ingest/pipeline.json
+wazuh/alerts/manifest.yml
+wazuh/alerts/config/
+wazuh/alerts/config/alerts.yml
+wazuh/_meta/
+wazuh/_meta/docs.asciidoc
+wazuh/_meta/config.yml
+wazuh/_meta/fields.yml
+wazuh/module.yml
+wazuh/archives/
+wazuh/archives/ingest/
+wazuh/archives/ingest/pipeline.json
+wazuh/archives/manifest.yml
+wazuh/archives/config/
+wazuh/archives/config/archives.yml
+Created filebeat keystore
+Successfully updated the keystore
+Successfully updated the keystore
+10/11/2025 17:28:05 INFO: Filebeat post-install configuration finished.
+10/11/2025 17:28:05 INFO: Starting service filebeat.
+Synchronizing state of filebeat.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable filebeat
+Created symlink /etc/systemd/system/multi-user.target.wants/filebeat.service → /usr/lib/systemd/system/filebeat.service.
+10/11/2025 17:28:07 INFO: filebeat service started.
+10/11/2025 17:28:07 INFO: --- Wazuh dashboard ---
+10/11/2025 17:28:07 INFO: Starting Wazuh dashboard installation.
+Reading package lists... Building dependency tree... Reading state information... The following NEW packages will be installed: wazuh-dashboard 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded. Need to get 0 B/193 MB of archives. After this operation, 1,034 MB of additional disk space will be used. Selecting previously unselected package wazuh-dashboard. (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 116834 files and directories currently installed.) Preparing to unpack .../wazuh-dashboard_4.14.0-1_amd64.deb ... Creating wazuh-dashboard group... OK Creating wazuh-dashboard user... OK Unpacking wazuh-dashboard (4.14.0-1) ... dpkg: error processing archive /var/cache/apt/archives/wazuh-dashboard_4.14.0-1_amd64.deb (--unpack): cannot copy extracted data for './usr/share/wazuh-dashboard/plugins/securityDashboards/target/public/securityDashboards.plugin.js.br' to '/usr/share/wazuh-dashboard/plugins/securityDashboards/target/public/securityDashboards.plugin.js.br.dpkg-new': failed to write (No space left on device) No apport report written because the error message indicates a disk full error dpkg-deb: error: paste subprocess was killed by signal (Broken pipe) Errors were encountered while processing: /var/cache/apt/archives/wazuh-dashboard_4.14.0-1_amd64.deb E: Sub-process /usr/bin/dpkg returned an error code (1)
+10/11/2025 17:29:50 ERROR: Wazuh dashboard installation failed.
+10/11/2025 17:29:50 INFO: --- Removing existing Wazuh installation ---
+10/11/2025 17:29:50 INFO: Removing Wazuh manager.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  wazuh-manager*
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 1,041 MB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 116834 files and directories currently installed.)
+Removing wazuh-manager (4.14.0-1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 92207 files and directories currently installed.)
+Purging configuration files for wazuh-manager (4.14.0-1) ...
+10/11/2025 17:30:23 INFO: Wazuh manager removed.
+10/11/2025 17:30:23 INFO: Removing Wazuh indexer.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  wazuh-indexer*
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 1,082 MB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 92190 files and directories currently installed.)
+Removing wazuh-indexer (4.14.0-1) ...
+Running Wazuh Indexer Pre-Removal Script
+Stop existing wazuh-indexer.service
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 91042 files and directories currently installed.)
+Purging configuration files for wazuh-indexer (4.14.0-1) ...
+dpkg: warning: while removing wazuh-indexer, directory '/var/log/wazuh-indexer' not empty so not removed
+dpkg: warning: while removing wazuh-indexer, directory '/var/lib/wazuh-indexer' not empty so not removed
+dpkg: warning: while removing wazuh-indexer, directory '/etc/wazuh-indexer' not empty so not removed
+10/11/2025 17:30:27 INFO: Wazuh indexer removed.
+10/11/2025 17:30:27 INFO: Removing Filebeat.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  filebeat*
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 73.6 MB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 91004 files and directories currently installed.)
+Removing filebeat (7.10.2-2) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 90712 files and directories currently installed.)
+Purging configuration files for filebeat (7.10.2-2) ...
+dpkg: warning: while removing filebeat, directory '/usr/share/filebeat/module' not empty so not removed
+dpkg: warning: while removing filebeat, directory '/etc/filebeat' not empty so not removed
+10/11/2025 17:30:30 INFO: Filebeat removed.
+10/11/2025 17:30:30 INFO: Installation cleaned. Check the /var/log/wazuh-install.log file to learn more about the issue.
