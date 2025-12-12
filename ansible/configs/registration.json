@@ -1,0 +1,35 @@
+{
+    "NUMBER_OF_USERS": 2,
+    "USER_NAME_PREFIX": "Bot",
+    "HOSTS_IP_ADDRESS": [
+        "192.168.1.10", 
+        "192.168.1.11"
+    ],
+    "DEPARTMENTS": ["IT"],
+    "USER_ALLOC_PERCENT": ["100"],
+    "EMAIL": 0,
+    "LOCAL_APP": 0,
+    "WORKER_PATH": {
+        "linux": [
+            {
+                "flavor": "ubuntu",
+                "path": "/home/tuo_utente/dapt2021"
+            }
+        ],
+        "windows": [
+            {
+                "flavor": "any",
+                "path": "C:"
+            }
+        ]
+    },
+    "FTP_SERVER": {
+        "ip": "",
+        "username": ""
+    },
+    "MAIL_SERVER": {
+        "ip": "",
+        "username": ""
+    },
+    "PHISHING_VICTIM": ""
+}
