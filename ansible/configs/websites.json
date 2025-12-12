@@ -1,0 +1,19 @@
+{
+    "IT": [
+        {
+            "url": "https://www.google.com",
+            "type": "text",
+            "state": "ACTIVE"
+        },
+        {
+            "url": "https://it.wikipedia.org",
+            "type": "text",
+            "state": "ACTIVE"
+        },
+        {
+            "url": "https://www.repubblica.it",
+            "type": "text",
+            "state": "ACTIVE"
+        }
+    ]
+}
