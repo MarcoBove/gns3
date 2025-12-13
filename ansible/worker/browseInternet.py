@@ -16,26 +16,31 @@ class simulateBrowser:
 
     '''
     Function: browseInternet
-    Objective: Aprire un URL nel browser di default del sistema
+    Objective: Aprire un URL forzando Edge (Windows) o Firefox (Linux)
     '''
     def browseInternet(self, targetUrl):
         self.logger.info(f"Tentativo di apertura URL: {targetUrl}")
         try:
-            # Caso Windows (se mai dovessi usarlo)
+            # Caso Windows: Forza Microsoft Edge
             if os.name == "nt":
                 RNULL = open('NUL', 'r')
                 WNULL = open('NUL', 'w')
-                command = f"start {targetUrl}"
+                # "start msedge" lancia specificamente Edge
+                command = f"start msedge {targetUrl}"
+                
                 # Esegue il comando senza bloccare lo script
                 subp = Popen(command, shell=True, stdin=RNULL, stdout=WNULL)
                 time.sleep(2) 
             
-            # Caso Linux (Le tue macchine)
+            # Caso Linux: Forza Mozilla Firefox
             else:
                 RNULL = open('/dev/null', 'r')
                 WNULL = open('/dev/null', 'w')
-                # DISPLAY=:0 è necessario per dire a Linux di aprire la finestra sul monitor principale
-                command = f"DISPLAY=:0 xdg-open {targetUrl}" 
+                
+                # DISPLAY=:0 assicura che si apra a video.
+                # --new-tab apre in una scheda se il browser è già aperto (più pulito)
+                command = f"DISPLAY=:0 firefox --new-tab {targetUrl}"
+                
                 subp = Popen(command, shell=True, stdin=RNULL, stdout=WNULL)
                 time.sleep(2)
 
@@ -44,8 +49,15 @@ class simulateBrowser:
         except Exception as e:
             self.logger.error(f"Errore nell'apertura della pagina: {str(e)}")
 
-# Blocco per testare lo script da solo senza Ansible
+# Blocco principale
 if __name__ == "__main__":
-    # Test rapido: prova ad aprire Google
     bot = simulateBrowser()
-    bot.browseInternet("https://www.google.com")
+    
+    # Controlliamo se Ansible ha inviato un URL
+    if len(sys.argv) > 1:
+        url_input = sys.argv[1]
+        bot.browseInternet(url_input)
+    else:
+        # Fallback per test manuale
+        print("Nessun URL fornito, apro Google per test.")
+        bot.browseInternet("https://www.google.com")
