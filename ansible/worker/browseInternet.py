@@ -1,9 +1,9 @@
 import os
 import sys
 import time
-import glob
 from subprocess import Popen
 
+# Classe di log semplice
 class SimpleLogger:
     def info(self, msg):
         print(f"[INFO] {msg}")
@@ -15,54 +15,53 @@ class simulateBrowser:
         self.logger = SimpleLogger()
 
     def browseInternet(self, targetUrl):
-        self.logger.info(f"Target URL: {targetUrl}")
+        self.logger.info(f"Richiesta apertura URL: {targetUrl}")
         
-        if os.name == "nt":
-            # Windows
-            RNULL = open('NUL', 'r')
-            WNULL = open('NUL', 'w')
-            Popen(f"start msedge {targetUrl}", shell=True, stdin=RNULL, stdout=WNULL)
-            time.sleep(2)
-        else:
-            # LINUX
-            # Percorso base dove hai trovato il file
-            base_dir = "/run/user/1000/"
+        try:
+            # --- CASO WINDOWS ---
+            if os.name == "nt":
+                RNULL = open('NUL', 'r')
+                WNULL = open('NUL', 'w')
+                # Apre Edge su Windows
+                Popen(f"start msedge {targetUrl}", shell=True, stdin=RNULL, stdout=WNULL)
+                time.sleep(2)
             
-            # Cerchiamo qualsiasi file che inizi con .mutter-Xwaylandauth
-            # Il * significa "qualsiasi cosa ci sia dopo"
-            pattern = os.path.join(base_dir, ".mutter-Xwaylandauth.*")
-            found_files = glob.glob(pattern)
-            
-            auth_file = ""
-            
-            if found_files:
-                # Prendiamo il primo che troviamo (es. .mutter-Xwaylandauth.ILLAH3)
-                auth_file = found_files[0]
-                self.logger.info(f"Trovato file auth dinamico: {auth_file}")
+            # --- CASO LINUX (Xorg Standard) ---
             else:
-                # Fallback se non lo trova (magari in futuro cambia)
-                self.logger.error("Non ho trovato il file mutter! Provo .Xauthority standard.")
-                auth_file = "/home/osboxes/.Xauthority"
-
-            # Costruiamo il comando con il file trovato
-            command = (
-                f"export DISPLAY=:0 && "
-                f"export XAUTHORITY={auth_file} && "
-                f"export GDK_BACKEND=x11 && " # Importante per Wayland
-                f"/usr/bin/firefox --new-tab {targetUrl}"
-            )
-            
-            try:
-                # Usiamo devnull per pulizia
                 RNULL = open('/dev/null', 'r')
                 WNULL = open('/dev/null', 'w')
+                
+                # Configurazione Utente
+                # Assicurati che questo sia l'utente corretto sui worker
+                remote_user = "osboxes" 
+                
+                # Su Xorg il file authority è sempre nella home dell'utente.
+                # Molto più semplice e stabile.
+                auth_file = f"/home/{remote_user}/.Xauthority"
+                
+                # Comando pulito per Xorg
+                command = (
+                    f"export DISPLAY=:0 && "
+                    f"export XAUTHORITY={auth_file} && "
+                    f"/usr/bin/firefox --new-tab {targetUrl}"
+                )
+                
+                # Eseguiamo il comando in background (fire and forget)
                 Popen(command, shell=True, stdin=RNULL, stdout=WNULL)
-                self.logger.info("Firefox lanciato.")
+                
+                self.logger.info(f"Comando Firefox inviato su DISPLAY=:0")
                 time.sleep(2)
-            except Exception as e:
-                self.logger.error(f"Errore: {e}")
+
+        except Exception as e:
+            self.logger.error(f"Errore critico: {str(e)}")
 
 if __name__ == "__main__":
     bot = simulateBrowser()
-    url = sys.argv[1] if len(sys.argv) > 1 else "https://www.google.com"
-    bot.browseInternet(url)
+    
+    # Prende l'URL dagli argomenti passati da Ansible
+    if len(sys.argv) > 1:
+        input_url = sys.argv[1]
+        bot.browseInternet(input_url)
+    else:
+        print("Nessun URL fornito, test su Google.")
+        bot.browseInternet("https://www.google.com")
