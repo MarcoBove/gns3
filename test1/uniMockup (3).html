@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNI.LOC University - Mock Homepage</title>
+  <style>
+    /* ===== Reset & base ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+      
+      /* STICKY FOOTER FIX */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ===== Header ===== */
+    header {
+      background: linear-gradient(90deg, #002b5c, #004a99);
+      color: white;
+      padding: 1rem 2rem;
+    }
+    header .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: auto;
+      width: 100%;
+    }
+    header .title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    header .info-links a {
+      color: white;
+      margin-left: 1rem;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    header .info-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== Menu ===== */
+    nav {
+      background-color: #0055a5;
+    }
+    nav .menu {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      list-style: none;
+      padding: 0.5rem 0;
+      flex-wrap: wrap; /* Helps on smaller screens */
+    }
+    nav .menu li {
+      position: relative;
+      margin-right: 1.5rem;
+    }
+    nav .menu li a {
+      color: white;
+      padding: 0.5rem;
+      display: block;
+      font-weight: bold;
+    }
+    nav .menu li .dropdown {
+      display: none;
+      position: absolute;
+      background: white;
+      top: 100%;
+      left: 0;
+      min-width: 180px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 10;
+    }
+    nav .menu li:hover .dropdown {
+      display: block;
+    }
+    nav .menu li .dropdown a {
+      color: #003366;
+      padding: 0.6rem;
+      border-bottom: 1px solid #ddd;
+      font-weight: normal;
+    }
+    nav .menu li .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* ===== Hero banner ===== */
+    .hero {
+      background: linear-gradient(135deg, #004a99, #0073e6);
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+    }
+
+    /* ===== Main ===== */
+    main {
+      max-width: 1100px;
+      width: 100%;
+      margin: auto;
+      padding: 2rem 1rem;
+      /* STICKY FOOTER FIX: Pushes footer down */
+      flex: 1; 
+    }
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    .section h2 {
+      margin-bottom: 1rem;
+      color: #003366;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+
+    /* ===== Lists ===== */
+    .news-list {
+      list-style-position: inside;
+      padding-left: 0.5rem;
+    }
+    .news-list li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== Card grid ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border-left: 4px solid #0055a5;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    .card h3 {
+      color: #003366;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== Flip cards ===== */
+    .flip-card {
+      background: transparent;
+      width: 100%;
+      height: 160px;
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #003366;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center;
+    }
+    .flip-card-back {
+      background: #0055a5;
+      color: white;
+      transform: rotateY(180deg);
+      font-size: 1rem;
+      font-weight: normal;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      background-color: #003366;
+      color: white;
+      padding: 2rem 1rem;
+      margin-top: auto; /* Fallback for sticky footer */
+    }
+    footer .footer-content {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+    footer .footer-col {
+      flex: 1 1 200px;
+    }
+    footer h4 {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 0.5rem;
+      display: inline-block;
+    }
+    footer ul {
+      list-style: none;
+    }
+    footer ul li {
+      margin-bottom: 0.5rem;
+    }
+    footer a {
+      color: #e0e0e0;
+      transition: color 0.2s;
+    }
+    footer a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+    footer small {
+      display: block;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="top-bar">
+      <div class="title">UNI.LOC University</div>
+      <div class="info-links">
+        <a href="#">Student Area</a>
+        <a href="#">Faculty Area</a>
+        <a href="#">Login</a>
+      </div>
+    </div>
+  </header>
+
+  <nav>
+    <ul class="menu">
+      <li><a href="#">Home</a></li>
+      <li>
+        <a href="#">The University</a>
+        <div class="dropdown">
+          <a href="#">About Us</a>
+          <a href="#">Organization</a>
+          <a href="#">Campuses</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Academics</a>
+        <div class="dropdown">
+          <a href="#">Undergraduate</a>
+          <a href="#">Master's Degrees</a>
+          <a href="#">PhD Programs</a>
+        </div>
+      </li>
+      <li><a href="#">Research</a></li>
+      <li><a href="#">Services</a></li>
+      <li><a href="#">News</a></li>
+      <li><a href="#">Contacts</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <h1>Welcome to UNI.LOC University</h1>
+  </div>
+
+  <main>
+    <div class="section" id="news">
+      <h2>News & Notices</h2>
+      <ul class="news-list">
+        <li>📢 Enrollment for the new academic year is now open.</li>
+        <li>🗓️ Seminar: "Networks and Distributed Systems" – March 15, 2026.</li>
+        <li>🌍 International Exchange Program applications due soon.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="courses">
+      <h2>Featured Degree Programs</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>Computer Engineering</h3>
+          <p>Undergraduate program focused on software engineering, networks, and distributed systems.</p>
+        </div>
+        <div class="card">
+          <h3>Economics & Management</h3>
+          <p>Comprehensive studies in business administration, accounting, and digital innovation.</p>
+        </div>
+        <div class="card">
+          <h3>Communication Sciences</h3>
+          <p>Exploring digital media, corporate communication, and cultural studies.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="numbers">
+      <h2>Key Figures</h2>
+      <div class="card-grid">
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">🎓 ~40,000 Students</div>
+            <div class="flip-card-back">A modern and dynamic community hosting students from all over the region.</div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">🏛️ 17 Departments</div>
+            <div class="flip-card-back">Excellence in research and education ranging from Engineering to Humanities.</div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">📍 Main Campus</div>
+            <div class="flip-card-back">State-of-the-art facilities and green spaces integrated with the local territory.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-col">
+        <h4>Contacts</h4>
+        <p>Email: secretary.uni.local@gmail.com</p>
+        <p>Phone: +39 xxx xxxxxx</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Accessibility</a></li>
+          <li><a href="#">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Social Media</h4>
+        <ul>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <small>© 2025 UNI.LOC Mock University - All rights reserved</small>
+  </footer>
+
+</body>
+</html>
