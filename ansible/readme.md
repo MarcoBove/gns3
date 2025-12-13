@@ -1,1 +1,1 @@
-Ansible project
+ssh osboxes@10.0.20.10 "export DISPLAY=:0 && export XDG_RUNTIME_DIR=/run/user/1000 && export XAUTHORITY=\$(find /run/user/1000 -name '.mutter-Xwaylandauth.*' | head -n 1) && /usr/bin/firefox https://www.google.com"
