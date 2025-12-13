@@ -10,7 +10,7 @@ REGISTRATION_FILE = "configs/registration.json"
 WEBSITES_FILE = "configs/websites.json"
 
 # Nome utente remoto (deve essere uguale su tutte le macchine worker)
-REMOTE_USER = "tuo_nome_utente"  # <--- CAMBIA QUESTO!
+REMOTE_USER = "osboxes"  # <--- CAMBIA QUESTO!
 REMOTE_WORKER_PATH = "/home/" + REMOTE_USER + "/dapt2021/worker" 
 
 def load_json(filepath):
@@ -28,12 +28,16 @@ def create_ansible_inventory(ip_list):
 def run_ansible_command(url):
     """Lancia il comando di browsing su TUTTI i worker"""
     
-    # Aggiungiamo export DISPLAY=:0 per agganciare la sessione grafica
-    remote_cmd = f"export DISPLAY=:0 && python3 {REMOTE_WORKER_PATH}/browseInternet.py '{url}'"
+    # --- MODIFICA FONDAMENTALE ---
+    # 1. DISPLAY=:0  -> Indica lo schermo fisico
+    # 2. DBUS_...    -> Indica il canale di comunicazione con il desktop (Gnome/KDE)
+    # $(id -u) trova automaticamente l'ID dell'utente (es. 1000)
+    
+    remote_cmd = f"export DISPLAY=:0 && export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus && python3 {REMOTE_WORKER_PATH}/browseInternet.py '{url}'"
     
     print(f"[ACTION] Apertura URL: {url} su tutti i worker...")
     
-    # Comando Ansible ottimizzato per GUI remote
+    # Il resto rimane uguale
     cmd = [
         "ansible", "workers",
         "-i", ANSIBLE_INVENTORY,
