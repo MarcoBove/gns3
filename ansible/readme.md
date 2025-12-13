@@ -1,1 +1,1 @@
-ssh osboxes@10.0.20.10 "export DISPLAY=:0 && export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus && export XAUTHORITY=\$(find /run/user/1000 -name '.mutter-Xwaylandauth.*' 2>/dev/null | head -n 1) && /usr/bin/firefox https://www.google.com"
+ssh osboxes@10.0.20.10 "export DISPLAY=:0 && export XAUTHORITY=/run/user/1000/.mutter-Xwaylandauth.ILLAH3 && export GDK_BACKEND=x11 && /usr/bin/firefox https://www.google.com"
