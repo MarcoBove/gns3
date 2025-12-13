@@ -27,19 +27,18 @@ def create_ansible_inventory(ip_list):
 
 def run_ansible_command(url):
     """Lancia il comando di browsing su TUTTI i worker"""
-    # Il comando che verrà eseguito sulla macchina remota
-    # Nota: Assumiamo che browseInternet.py sia stato copiato nella cartella worker
-    remote_cmd = f"python3 {REMOTE_WORKER_PATH}/browseInternet.py '{url}'"
+    
+    # Aggiungiamo export DISPLAY=:0 per agganciare la sessione grafica
+    remote_cmd = f"export DISPLAY=:0 && python3 {REMOTE_WORKER_PATH}/browseInternet.py '{url}'"
     
     print(f"[ACTION] Apertura URL: {url} su tutti i worker...")
     
-    # Costruiamo il comando Ansible ad-hoc (senza playbook complessi per ora)
-    # Modulo 'shell' esegue il comando grezzo
+    # Comando Ansible ottimizzato per GUI remote
     cmd = [
         "ansible", "workers",
         "-i", ANSIBLE_INVENTORY,
         "-m", "shell",
-        "-a", f"nohup {remote_cmd} > /dev/null 2>&1 &" # Esegue in background
+        "-a", f"nohup sh -c '{remote_cmd}' > /dev/null 2>&1 &"
     ]
     
     try:
