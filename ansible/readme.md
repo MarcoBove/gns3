@@ -4,3 +4,30 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCWb0bPbP9q0uzwhPeLwYkRPrEGPHt1fI/sPTnEbDXR
 
 
 ssh User@10.0.10.12 "echo https://www.google.com > C:/Users/User/dapt2021/worker/current_url.txt && schtasks /run /tn DaptBrowser"
+
+
+@echo off
+:: Ci assicuriamo di essere nella cartella giusta
+cd /d C:\dapt2021\worker
+
+:: Leggiamo l'URL
+set /p url=<current_url.txt
+
+:: Stampiamo a video cosa sta succedendo (per debug)
+echo ------------------------------------------
+echo TENTATIVO DI APERTURA BROWSER
+echo URL Letto dal file: %url%
+echo ------------------------------------------
+
+:: Lanciamo Python
+python browseInternet.py %url%
+
+:: Se c'è un errore, lo vediamo
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERRORE] Python ha restituito il codice: %errorlevel%
+)
+
+echo.
+echo NON CHIUDERE QUESTA FINESTRA, leggi l'errore sopra.
+pause
