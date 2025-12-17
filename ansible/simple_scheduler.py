@@ -11,13 +11,12 @@ WEBSITES_FILE = "configs/websites.json"
 
 # --- CONFIGURAZIONE LINUX ---
 LINUX_USER = "osboxes"
-# Percorso worker Linux
 LINUX_WORKER_PATH = f"/home/{LINUX_USER}/dapt2021/worker"
 
 # --- CONFIGURAZIONE WINDOWS ---
-WINDOWS_USER = "User"  # Metti qui il nome utente vero di Windows
-# Percorso worker Windows (Usa le barre normali / anche qui)
-WINDOWS_WORKER_PATH = f"C:/Users/{WINDOWS_USER}/dapt2021/worker"
+WINDOWS_USER = "User"  # Metti qui il nome utente vero
+# Percorso su Windows (Nota le doppie barre rovesciate \\ per sicurezza in Python)
+WINDOWS_BAT_PATH = f"C:\\Users\\{WINDOWS_USER}\\dapt2021\\worker\\run_task.bat"
 
 def load_json(filepath):
     try:
@@ -29,8 +28,8 @@ def load_json(filepath):
 
 def create_ansible_inventory(hosts_data):
     """
-    Legge la lista dal JSON e crea l'inventario diviso.
-    Si aspetta una lista di dizionari: [{'ip': '...', 'os': '...'}, ...]
+    Crea l'inventario.
+    Per Windows usiamo una configurazione PULITA perché usiamo il modulo 'raw'.
     """
     linux_hosts = []
     windows_hosts = []
@@ -50,20 +49,21 @@ def create_ansible_inventory(hosts_data):
         for ip in linux_hosts:
             f.write(f"{ip} ansible_user={LINUX_USER} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
         
-        # Gruppo WINDOWS - FIX APPLICATO QUI
+        # Gruppo WINDOWS (Semplificato)
         f.write("\n[workers_windows]\n")
         for ip in windows_hosts:
-            f.write(f"{ip} ansible_user={WINDOWS_USER} ansible_connection=ssh ansible_shell_type=powershell ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
+            # Togliamo ansible_shell_type, usiamo SSH standard
+            f.write(f"{ip} ansible_user={WINDOWS_USER} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
             
     print(f"[INFO] Inventario creato: {len(linux_hosts)} Linux, {len(windows_hosts)} Windows.")
     return len(windows_hosts) > 0
 
 def run_ansible_command(url, has_windows):
-    """Lancia i comandi appropriati."""
+    """Lancia i comandi."""
     
     print(f"[ACTION] Apertura URL: {url}")
 
-    # --- COMANDO PER LINUX ---
+    # --- COMANDO PER LINUX (Modulo SHELL) ---
     cmd_linux_text = (
         f"export DISPLAY=:0 && "
         f"export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus && "
@@ -77,19 +77,15 @@ def run_ansible_command(url, has_windows):
         "-a", f"nohup sh -c '{cmd_linux_text}' > /dev/null 2>&1 &"
     ]
 
-    # --- COMANDO PER WINDOWS ---
-    # FIX: Usiamo ; come separatore PowerShell e apici per l'URL
-    cmd_windows_text = (
-        f"echo '{url}' > {WINDOWS_WORKER_PATH}/current_url.txt ; "
-        f"schtasks /run /tn DaptBrowser"
-    )
-    
-    cmd_windows = [
-        "ansible", "workers_windows",
-        "-i", ANSIBLE_INVENTORY,
-        "-m", "shell",
-        "-a", f"{cmd_windows_text}"
-    ]
+    # --- COMANDO PER WINDOWS (Modulo RAW -> run_task.bat) ---
+    if has_windows:
+        # Chiamiamo direttamente il file BAT passando l'URL
+        cmd_win = [
+            "ansible", "workers_windows",
+            "-i", ANSIBLE_INVENTORY,
+            "-m", "raw",  # IMPORTANTE: Usa raw, non shell
+            "-a", f"{WINDOWS_BAT_PATH} {url}"
+        ]
 
     # ESECUZIONE LINUX
     try:
@@ -100,44 +96,43 @@ def run_ansible_command(url, has_windows):
     # ESECUZIONE WINDOWS
     if has_windows:
         try:
-            res = subprocess.run(cmd_windows, capture_output=True, text=True)
+            res = subprocess.run(cmd_win, capture_output=True, text=True)
+            # Con il modulo RAW, controlliamo se il codice di ritorno è 0
             if res.returncode != 0:
-                print(f"\n[WARN] Windows Command FAILED!")
-                print(f"--- STDOUT: ---\n{res.stdout}")
-                print(f"--- STDERR: ---\n{res.stderr}")
+                print(f"[WARN] Windows Command FAILED!")
+                print(f"--- OUTPUT: ---\n{res.stdout}\n{res.stderr}")
+            else:
+                # Se vuoi vedere "Command completed successfully" scommenta la riga sotto
+                # print(f"[DEBUG Win] {res.stdout}")
+                pass
         except Exception as e:
             print(f"[ERROR] Windows cmd: {e}")
         
     print("[OK] Comandi inviati.")
 
 def main():
-    print("--- AVVIO SCHEDULER IBRIDO (JSON DINAMICO) ---")
+    print("--- AVVIO SCHEDULER IBRIDO (BAT VERSION) ---")
     
-    # 1. Carica Configurazioni
     reg_config = load_json(REGISTRATION_FILE)
     web_config = load_json(WEBSITES_FILE)
     
-    # Verifica che il JSON abbia la chiave giusta (HOSTS_LIST o quella che hai scelto)
     if 'HOSTS_LIST' in reg_config:
         hosts_data = reg_config['HOSTS_LIST']
     elif 'HOSTS_IP_ADDRESS' in reg_config:
-        # Supporto retroattivo se non hai ancora cambiato il JSON (assume tutti Linux)
-        print("[WARN] JSON vecchio formato rilevato. Assumo tutti Linux.")
+        print("[WARN] JSON vecchio formato. Assumo tutti Linux.")
         hosts_data = [{'ip': ip, 'os': 'linux'} for ip in reg_config['HOSTS_IP_ADDRESS']]
     else:
-        print("[FATAL] Nessuna lista host trovata nel JSON.")
+        print("[FATAL] Nessuna lista host trovata.")
         return
 
     urls = [site['url'] for site in web_config.get('IT', [])]
 
-    # 2. Crea Inventario Ansible e controlla se abbiamo Windows
+    # Crea inventario
     has_windows_hosts = create_ansible_inventory(hosts_data)
     
-    # 3. Loop
     try:
         while True:
             target_url = random.choice(urls)
-            
             run_ansible_command(target_url, has_windows_hosts)
             
             wait_time = random.randint(10, 30)
