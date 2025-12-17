@@ -28,4 +28,17 @@ set /p TARGET_URL=<"%URL_FILE%"
 start msedge %TARGET_URL%
 :: Oppure se usi python: python browseInternet.py %TARGET_URL%
 
+:: -----------------------------------------------------
+:: CLEANUP: Chiude le finestre vecchie prima di aprire le nuove
+:: -----------------------------------------------------
+:: /IM = Image Name (nome programma)
+:: /F = Force (forza chiusura)
+:: /T = Tree (chiude anche i processi figli)
+:: 2>nul = Nasconde l'errore se il programma non era aperto
+
+taskkill /IM msedge.exe /F /T 2>nul
+
+:: Aspetta 1 secondo per essere sicuri che si sia chiuso tutto
+timeout /t 1 /nobreak >nul
+
 exit /b 0
