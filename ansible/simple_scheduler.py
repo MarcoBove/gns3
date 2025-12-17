@@ -35,31 +35,27 @@ def create_ansible_inventory(hosts_data):
     linux_hosts = []
     windows_hosts = []
 
-    # 1. Separiamo gli host in base al campo "os" nel JSON
     for host in hosts_data:
         ip = host.get('ip')
-        os_type = host.get('os', 'linux').lower() # Default a linux se non specificato
+        os_type = host.get('os', 'linux').lower()
         
         if os_type == 'windows':
             windows_hosts.append(ip)
         else:
             linux_hosts.append(ip)
 
-    # 2. Scriviamo il file inventory
     with open(ANSIBLE_INVENTORY, 'w') as f:
         # Gruppo LINUX
         f.write("[workers_linux]\n")
         for ip in linux_hosts:
             f.write(f"{ip} ansible_user={LINUX_USER} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
         
-        # Gruppo WINDOWS
+        # Gruppo WINDOWS - FIX APPLICATO QUI
         f.write("\n[workers_windows]\n")
         for ip in windows_hosts:
-            f.write(f"{ip} ansible_user={WINDOWS_USER} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
+            f.write(f"{ip} ansible_user={WINDOWS_USER} ansible_connection=ssh ansible_shell_type=powershell ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
             
     print(f"[INFO] Inventario creato: {len(linux_hosts)} Linux, {len(windows_hosts)} Windows.")
-    
-    # Ritorniamo True se ci sono host Windows, per sapere se lanciare i comandi Win dopo
     return len(windows_hosts) > 0
 
 def run_ansible_command(url, has_windows):
@@ -74,7 +70,6 @@ def run_ansible_command(url, has_windows):
         f"python3 {LINUX_WORKER_PATH}/browseInternet.py '{url}'"
     )
     
-    # Nota: Usiamo 'workers_linux' come target
     cmd_linux = [
         "ansible", "workers_linux",
         "-i", ANSIBLE_INVENTORY,
@@ -83,12 +78,12 @@ def run_ansible_command(url, has_windows):
     ]
 
     # --- COMANDO PER WINDOWS ---
+    # FIX: Usiamo ; come separatore PowerShell e apici per l'URL
     cmd_windows_text = (
-        f"echo {url} > {WINDOWS_WORKER_PATH}/current_url.txt && "
+        f"echo '{url}' > {WINDOWS_WORKER_PATH}/current_url.txt ; "
         f"schtasks /run /tn DaptBrowser"
     )
     
-    # Nota: Usiamo 'workers_windows' come target
     cmd_windows = [
         "ansible", "workers_windows",
         "-i", ANSIBLE_INVENTORY,
@@ -96,19 +91,20 @@ def run_ansible_command(url, has_windows):
         "-a", f"{cmd_windows_text}"
     ]
 
-    # ESECUZIONE LINUX (Sempre, se il gruppo esiste Ansible gestisce se è vuoto o no, ma meglio gestire errori)
+    # ESECUZIONE LINUX
     try:
-        # Lanciamo e ignoriamo l'output standard per pulizia
         subprocess.run(cmd_linux, capture_output=True, text=True)
     except Exception as e:
         print(f"[ERROR] Linux cmd: {e}")
 
-    # ESECUZIONE WINDOWS (Solo se ci sono host windows)
+    # ESECUZIONE WINDOWS
     if has_windows:
         try:
             res = subprocess.run(cmd_windows, capture_output=True, text=True)
             if res.returncode != 0:
-                print(f"[WARN] Windows cmd error: {res.stderr}")
+                print(f"\n[WARN] Windows Command FAILED!")
+                print(f"--- STDOUT: ---\n{res.stdout}")
+                print(f"--- STDERR: ---\n{res.stderr}")
         except Exception as e:
             print(f"[ERROR] Windows cmd: {e}")
         
