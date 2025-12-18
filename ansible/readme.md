@@ -25,3 +25,6 @@ schtasks /run /tn DaptBrowser
 C:\Users\User\dapt2021\worker\run_task.bat https://www.repubblica.it
 
 ansible workers_windows -i configs/hosts -m raw -a "C:\Users\User\dapt2021\worker\run_task.bat https://www.google.com"
+
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
