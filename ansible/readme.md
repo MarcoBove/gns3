@@ -6,19 +6,7 @@ ansible workers_windows -i configs/hosts -m raw -a "cmd /c echo https://www.goog
 
 ansible workers_windows -i configs/hosts -m raw -a "schtasks /run /tn DaptBrowser"
 
-@echo off
-:: Questo script riceve l'URL come primo parametro (%1)
 
-if "%~1"=="" (
-    echo ERRORE: Nessun URL fornito.
-    exit /b 1
-)
-
-:: 1. Scrive l'URL nel file (senza virgolette extra)
-echo %~1 > C:\Users\User\dapt2021\worker\current_url.txt
-
-:: 2. Lancia il Task Scheduler
-schtasks /run /tn DaptBrowser
 
 
 
@@ -26,5 +14,10 @@ C:\Users\User\dapt2021\worker\run_task.bat https://www.repubblica.it
 
 ansible workers_windows -i configs/hosts -m raw -a "C:\Users\User\dapt2021\worker\run_task.bat https://www.google.com"
 
-Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
+student@osboxes:~$ /home/student/user_behavior_generation/worker/venv/bin/python /home/student/user_behavior_generation/worker/smart_worker.py https://www.google.com generic
+[ERROR] Driver init failed: Message: Process unexpectedly closed with status 1
+
+student@osboxes:~$ /home/student/user_behavior_generation/worker/venv/bin/python3 /home/student/user_behavior_generation/worker/smart_worker.py https://www.google.com generic
+[ERROR] Driver init failed: Message: Process unexpectedly closed with status 1
+
+Mi esce prima un popup : Your Firefox profile cannot be loaded. It may be missing or inaccessible.
