@@ -3,7 +3,7 @@ import time
 import random
 import subprocess
 import os
-from multiprocessing import Process # <--- IMPORTANTE: Importiamo Process
+from multiprocessing import Process
 
 def load_json(filepath):
     try:
@@ -26,7 +26,6 @@ def create_ansible_inventory(hosts_data, inventory, linux_user, windows_user):
         else:
             linux_hosts.append(ip)
 
-    # Assicuriamoci che la directory per l'inventario esista o gestiamo il path
     try:
         with open(inventory, 'w') as f:
             # Gruppo LINUX
@@ -35,7 +34,7 @@ def create_ansible_inventory(hosts_data, inventory, linux_user, windows_user):
                 f.write(f"{ip} ansible_user={linux_user} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
             
             # Gruppo WINDOWS
-            if windows_hosts: # Scriviamo il gruppo windows solo se ce ne sono
+            if windows_hosts:
                 f.write("\n[workers_windows]\n")
                 for ip in windows_hosts:
                     f.write(f"{ip} ansible_user={windows_user} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
@@ -45,12 +44,17 @@ def create_ansible_inventory(hosts_data, inventory, linux_user, windows_user):
     print(f"[INFO] Inventario {inventory} creato: {len(linux_hosts)} Linux, {len(windows_hosts)} Windows.")
     return len(windows_hosts) > 0
 
-def run_ansible_command(url, has_windows, inventory, linux_path, windows_bat_path):
-    # --- COMANDO PER LINUX ---
+def run_ansible_command(url, action_type, has_windows, inventory, linux_user, linux_path, windows_bat_path):
+    """
+    Lancia i comandi Ansible.
+    Passa url e action_type sia a Linux che a Windows.
+    """
+    
+    # --- COMANDO PER LINUX (smart_worker.py) ---
     cmd_linux_text = (
         f"export DISPLAY=:0 && "
-        f"export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus && "
-        f"python3 {linux_path}/browseInternet.py '{url}'"
+        f"export TMPDIR=/home/{linux_user}/tmp_firefox && "
+        f"{linux_path}/venv/bin/python {linux_path}/smart_worker.py {url} {action_type}"
     )
     
     cmd_linux = [
@@ -60,19 +64,18 @@ def run_ansible_command(url, has_windows, inventory, linux_path, windows_bat_pat
         "-a", f"nohup sh -c '{cmd_linux_text}' > /dev/null 2>&1 &"
     ]
 
-    # --- COMANDO PER WINDOWS ---
+    # --- COMANDO PER WINDOWS (Chiama il .bat che attiva il Task Scheduler) ---
     cmd_win = []
     if has_windows:
+        # Passiamo URL e ACTION al .bat. Lui li scriverà nel file txt e chiamerà schtasks
         cmd_win = [
             "ansible", "workers_windows",
             "-i", inventory,
             "-m", "raw",
-            "-a", f"{windows_bat_path} {url}"
+            "-a", f"{windows_bat_path} {url} {action_type}"
         ]
 
-    # ESECUZIONE (In sequenza rapida per questo processo)
-    # Nota: Questo blocca il singolo processo per un attimo, ma dato che usiamo 
-    # Multiprocessing nel main, l'altra Classroom non sta aspettando questa.
+    # ESECUZIONE 
     try:
         # Lancia Linux
         subprocess.run(cmd_linux, capture_output=True, text=True)
@@ -86,7 +89,7 @@ def run_ansible_command(url, has_windows, inventory, linux_path, windows_bat_pat
         except Exception as e:
             print(f"[ERROR {inventory}] Windows cmd: {e}")
         
-    print(f"[OK {inventory}] Comandi inviati per URL: {url}")
+    print(f"[OK {inventory}] Comandi inviati -> {url} ({action_type})")
 
 def simulation(vlan, registration, websites, inventory, linux_user, linux_path, windows_user, windows_bat_path):
     print(f"--- AVVIO PROCESSO SIMULAZIONE: {vlan} ---")
@@ -94,6 +97,7 @@ def simulation(vlan, registration, websites, inventory, linux_user, linux_path, 
     reg_config = load_json(registration)
     web_config = load_json(websites)
     
+    # Gestione Hosts
     if 'HOSTS_LIST' in reg_config:
         hosts_data = reg_config['HOSTS_LIST']
     elif 'HOSTS_IP_ADDRESS' in reg_config:
@@ -102,9 +106,9 @@ def simulation(vlan, registration, websites, inventory, linux_user, linux_path, 
         print(f"[FATAL {vlan}] Nessuna lista host trovata.")
         return
 
-    # Seleziona URL (supporto fallback se manca chiave IT)
-    urls = [site['url'] for site in web_config.get('IT', [])]
-    if not urls:
+    # Gestione URLs (estrae la stringa intera "url azione")
+    raw_entries = [site['url'] for site in web_config.get('IT', [])]
+    if not raw_entries:
         print(f"[WARN {vlan}] Nessun URL trovato nel file websites.")
         return
 
@@ -113,10 +117,16 @@ def simulation(vlan, registration, websites, inventory, linux_user, linux_path, 
     
     try:
         while True:
-            target_url = random.choice(urls)
-            run_ansible_command(target_url, has_windows_hosts, inventory, linux_path, windows_bat_path)
+            # Prende una stringa a caso dal JSON es: "https://www.google.com generic"
+            full_entry = random.choice(raw_entries)
             
-            # Delay casuale indipendente per ogni classroom
+            # SPLIT della stringa in URL e TYPE
+            parts = full_entry.split()
+            target_url = parts[0]
+            action_type = parts[1] if len(parts) > 1 else "generic"
+
+            run_ansible_command(target_url, action_type, has_windows_hosts, inventory, linux_user, linux_path, windows_bat_path)
+            
             wait_time = random.randint(20, 40)
             print(f"[WAIT {vlan}] Attesa di {wait_time} secondi...\n")
             time.sleep(wait_time)
@@ -127,10 +137,9 @@ def simulation(vlan, registration, websites, inventory, linux_user, linux_path, 
         print(f"[CRITICAL {vlan}] Errore nel loop: {e}")
 
 def main():
-    print("--- AVVIO SCHEDULER MULTI-PROCESSO ---")
+    print("--- AVVIO SCHEDULER MULTI-PROCESSO (SMART WORKER - VISIBLE MODE) ---")
 
     # --- CONFIGURAZIONE CLASSROOM 1 ---
-    # Definiamo gli argomenti in una tupla
     args_c1 = (
         "Classroom1", 
         "configs/registration_10.json", 
@@ -143,7 +152,6 @@ def main():
     )
 
     # --- CONFIGURAZIONE CLASSROOM 2 ---
-    # Nota: windows_user e bat_path vuoti vanno bene perché l'inventario non avrà host windows
     args_c2 = (
         "Classroom2", 
         "configs/registration_20.json", 
@@ -155,17 +163,14 @@ def main():
         ""
     )
 
-    # Creazione dei processi paralleli
     p1 = Process(target=simulation, args=args_c1)
     p2 = Process(target=simulation, args=args_c2)
 
-    # Avvio dei processi
     p1.start()
     print("[MASTER] Classroom1 avviata.")
     p2.start()
     print("[MASTER] Classroom2 avviata.")
 
-    # Il main attende che i processi finiscano (in teoria mai, finché non premi CTRL+C)
     try:
         p1.join()
         p2.join()
