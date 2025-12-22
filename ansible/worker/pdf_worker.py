@@ -72,21 +72,30 @@ def main():
         # --- CONFIGURAZIONE LINUX (Firefox) ---
         if "linux" in sys.platform:
             options = FirefoxOptions()
-            
-            # FIX CRITICO: Specifichiamo dov'è il binario di Firefox
-            # Se su osboxes il path è diverso, digita 'which firefox' nel terminale per scoprirlo
-            options.binary_location = "/usr/bin/firefox"
-            
-            # Opzionale: Se hai problemi col display
-            # options.add_argument("--headless") 
+        
+            # TENTATIVO 1: Cerca il binario vero di Snap (Standard su Ubuntu/osboxes)
+            snap_binary = "/snap/firefox/current/usr/lib/firefox/firefox"
+        
+            # TENTATIVO 2: Cerca il binario classico
+            classic_binary = "/usr/bin/firefox"
+        
+            if os.path.exists(snap_binary):
+                print(f"[DEBUG] Trovato Firefox Snap: {snap_binary}")
+                options.binary_location = snap_binary
+            else:
+                # Se non è Snap, proviamo quello standard, ma potrebbe fallire se è un wrapper
+                print(f"[DEBUG] Uso Firefox Standard: {classic_binary}")
+                options.binary_location = classic_binary
 
-            # FIX CRITICO: Specifichiamo il service per geckodriver
-            # Assicurati che geckodriver sia installato o nel path
-            # Se non è nel path, specifica executable_path="/path/to/geckodriver" dentro Service()
-            service = FirefoxService() 
-            
+            # FIX TMPDIR: Fondamentale per Firefox Snap altrimenti crasha
+            # Se la cartella tmp non esiste o non ha permessi, Selenium muore.
+            os.environ["TMPDIR"] = f"/home/{os.environ.get('USER', 'student')}/tmp_firefox"
+        
+            service = FirefoxService()
+            # Se geckodriver non è nel PATH globale, specifica qui il percorso:
+            # service = FirefoxService(executable_path="/home/student/user_behavior_generation/worker/geckodriver")
+        
             driver = webdriver.Firefox(options=options, service=service)
-
         # --- CONFIGURAZIONE WINDOWS (Edge) ---
         else:
             options = EdgeOptions()
@@ -103,7 +112,7 @@ def main():
         time.sleep(3) 
         
         # Tempo di lettura variabile
-        reading_time = random.randint(20, 40)
+        reading_time = random.randint(60, 100)
         scroll_reading_mode_keyboard(driver, reading_time)
         
     except Exception as e:
@@ -118,3 +127,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
