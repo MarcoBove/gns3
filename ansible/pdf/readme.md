@@ -22,3 +22,31 @@ selenium.common.exceptions.InvalidArgumentException: Message: binary is not a Fi
 student@osboxes:~/user_behavior_generation/worker$ which firefox
 /usr/bin/firefox
 
+
+# --- CONFIGURAZIONE LINUX (Firefox) ---
+        if "linux" in sys.platform:
+            options = FirefoxOptions()
+            
+            # TENTATIVO 1: Cerca il binario vero di Snap (Standard su Ubuntu/osboxes)
+            snap_binary = "/snap/firefox/current/usr/lib/firefox/firefox"
+            
+            # TENTATIVO 2: Cerca il binario classico
+            classic_binary = "/usr/bin/firefox"
+            
+            if os.path.exists(snap_binary):
+                print(f"[DEBUG] Trovato Firefox Snap: {snap_binary}")
+                options.binary_location = snap_binary
+            else:
+                # Se non è Snap, proviamo quello standard, ma potrebbe fallire se è un wrapper
+                print(f"[DEBUG] Uso Firefox Standard: {classic_binary}")
+                options.binary_location = classic_binary
+
+            # FIX TMPDIR: Fondamentale per Firefox Snap altrimenti crasha
+            # Se la cartella tmp non esiste o non ha permessi, Selenium muore.
+            os.environ["TMPDIR"] = f"/home/{os.environ.get('USER', 'student')}/tmp_firefox"
+            
+            service = FirefoxService()
+            # Se geckodriver non è nel PATH globale, specifica qui il percorso:
+            # service = FirefoxService(executable_path="/home/student/user_behavior_generation/worker/geckodriver")
+            
+            driver = webdriver.Firefox(options=options, service=service)
