@@ -1,0 +1,11 @@
+{
+    "linux": [
+        "/home/student/Documents/guida_python.pdf",
+        "/home/student/Documents/report_mensile.pdf",
+        "/home/student/Downloads/manuale.pdf"
+    ],
+    "windows": [
+        "C:\\Users\\Student\\Documents\\guida_win.pdf",
+        "C:\\Users\\Student\\Documents\\report_win.pdf"
+    ]
+}
