@@ -2,6 +2,110 @@
 
 # Funzione load_json rimane uguale ...
 # Funzione create_ansible_inventory rimane uguale ...
+def run_print_command(pdf_path, has_windows, inventory, windows_bat_path):
+    """
+    Invia comando di stampa solo a Windows.
+    """
+    if not has_windows:
+        return
+
+    # Comando: path_del_pdf print
+    cmd_win = [
+        "ansible", "workers_windows",
+        "-i", inventory,
+        "-m", "raw",
+        "-a", f"{windows_bat_path} {pdf_path} print"
+    ]
+
+    try:
+        subprocess.run(cmd_win, capture_output=True, text=True)
+        print(f"[OK {inventory}] Stampa inviata: {pdf_path}")
+    except Exception as e:
+        print(f"[ERROR {inventory}] Print cmd: {e}")
+
+def print_simulation(vlan, registration, pdf_json_path, inventory, windows_user, windows_bat_path):
+    print(f"--- AVVIO SIMULAZIONE STAMPA: {vlan} ---")
+    
+    # Usiamo lo stesso file JSON dei PDF che usiamo per la lettura
+    pdf_config = load_json(pdf_json_path)
+    
+    # Ci servono solo i PDF di Windows
+    pdfs_windows = pdf_config.get('windows', [])
+    
+    if not pdfs_windows:
+        print(f"[WARN {vlan}] Nessun PDF Windows trovato per la stampa.")
+        return
+
+    # Check hosts (semplificato)
+    has_windows = True
+
+    try:
+        while True:
+            # Scegli un PDF a caso
+            target_pdf = random.choice(pdfs_windows)
+            
+            # Lancia la stampa
+            run_print_command(target_pdf, has_windows, inventory, windows_bat_path)
+            
+            # Attesa realistica tra una stampa e l'altra (es. ogni 2-5 minuti)
+            wait_time = random.randint(120, 300)
+            print(f"[WAIT {vlan}] Prossima stampa tra {wait_time} secondi...\n")
+            time.sleep(wait_time)
+            
+    except KeyboardInterrupt:
+        print(f"\n[STOP {vlan}] Simulazione Stampa interrotta.")
+    except Exception as e:
+        print(f"[CRITICAL {vlan}] Errore loop Stampa: {e}")
+
+def run_mail_command(has_windows, inventory, windows_bat_path):
+    """
+    Lancia il comando Mail solo su Windows.
+    """
+    if not has_windows:
+        return
+
+    # Argomento 1: "gmail" (testo a caso, tanto il bat lo ignora nel caso mail)
+    # Argomento 2: "mail" (l'azione che attiva l'if nel bat)
+    cmd_win = [
+        "ansible", "workers_windows",
+        "-i", inventory,
+        "-m", "raw",
+        "-a", f"{windows_bat_path} gmail mail"
+    ]
+
+    try:
+        subprocess.run(cmd_win, capture_output=True, text=True)
+        print(f"[OK {inventory}] Mail avviata su Windows")
+    except Exception as e:
+        print(f"[ERROR {inventory}] Mail cmd: {e}")
+
+
+def read_mail_simulation(vlan, inventory, windows_user, windows_bat_path):
+    print(f"--- AVVIO SIMULAZIONE MAIL: {vlan} ---")
+    
+    # Creiamo un inventario al volo solo per windows (se serve) o usiamo quello esistente
+    # Nota: qui semplifico assumendo che l'inventario sia già popolato o fisso.
+    # Se devi ricrearlo dinamicamente usa create_ansible_inventory come nelle altre funzioni.
+    
+    # Controllo veloce se ci sono host windows nell'inventario
+    # (Per semplicità assumiamo True se lanciamo questa funzione)
+    has_windows = True 
+    
+    try:
+        while True:
+            # Lancia Gmail
+            run_mail_command(has_windows, inventory, windows_bat_path)
+            
+            # Lascia la mail aperta per molto tempo (es. 5-10 minuti)
+            # O il tempo che preferisci
+            wait_time = random.randint(300, 600) 
+            print(f"[WAIT {vlan}] Consultazione mail per {wait_time} secondi...\n")
+            time.sleep(wait_time)
+            
+    except KeyboardInterrupt:
+        print(f"\n[STOP {vlan}] Simulazione Mail interrotta.")
+    except Exception as e:
+        print(f"[CRITICAL {vlan}] Errore nel loop Mail: {e}")
 
 def run_pdf_command(pdf_path, action_type, has_windows, inventory, linux_user, linux_path, windows_bat_path):
     """
@@ -121,7 +225,20 @@ def main():
     
     # p_pdf = Process(target=pdf_simulation, args=args_pdf_c1)
     # p_pdf.start()
-    pass 
+    # ... definizioni precedenti ...
+
+    # Esempio Classroom 1 - MAIL (Solo Windows)
+    args_mail_c1 = (
+        "Classroom1_Mail",
+        "configs/hosts_10",      # Usa l'inventario esistente
+        "Student",
+        "C:\\Users\\Student\\user_behavior_generation\\worker\\browser_task.bat"
+    )
+
+    # p_mail = Process(target=read_mail_simulation, args=args_mail_c1)
+    # p_mail.start()
+    
+    # ... start altri processi ...
 
 if __name__ == "__main__":
     main()
