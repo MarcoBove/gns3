@@ -1,3 +1,3 @@
-Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.14.1-1.msi -OutFile $env:tmp\wazuh-agent; msiexec.exe /i $env:tmp\wazuh-agent /q WAZUH_MANAGER='10.0.99.14' WAZUH_AGENT_GROUP='DomainController' WAZUH_AGENT_NAME='DC' 
+Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.14.1-1.msi -OutFile $env:tmp\wazuh-agent; msiexec.exe /i $env:tmp\wazuh-agent /q WAZUH_MANAGER='10.0.99.14' WAZUH_AGENT_GROUP='Laboratory' WAZUH_AGENT_NAME='Laboratory-Windows' 
 
 NET START Wazuh
