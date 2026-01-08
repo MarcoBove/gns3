@@ -95,7 +95,7 @@ def run_ansible_command(url, action_type, has_windows, inventory, linux_user, li
 def web_simulation(args, duration):
     vlan, registration, websites, inventory, linux_user, linux_path, windows_user, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE WEB: {vlan} ---")
-    print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
+    print(f"--- Tempo assegnato dallo scheduler: {duration:.1f} secondi ---")
     
     reg_config = load_json(registration)
     web_config = load_json(websites)
@@ -199,7 +199,7 @@ def run_pdf_command(pdf_path, action_type, has_windows, inventory, linux_user, l
 def pdf_simulation(args, duration):
     vlan, registration, pdf_json_path, inventory, linux_user, linux_path, windows_user, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE PDF: {vlan} ---")
-    print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
+    print(f"--- Tempo assegnato dallo scheduler: {duration:.1f} secondi ---")
     
     reg_config = load_json(registration)
     pdf_config = load_json(pdf_json_path) # Carichiamo il file dei PDF
@@ -269,7 +269,7 @@ def run_print_command(pdf_path, has_windows, inventory, windows_bat_path):
 def print_simulation(args, duration):
     vlan, pdf_json_path, inventory, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE STAMPA: {vlan} ---")
-    print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
+    print(f"--- Tempo assegnato dallo scheduler: {duration:.1f} secondi ---")
     
     # Usiamo lo stesso file JSON dei PDF che usiamo per la lettura
     pdf_config = load_json(pdf_json_path)
@@ -328,7 +328,7 @@ def run_mail_command(has_windows, inventory, windows_bat_path):
 def read_mail_simulation(args, duration):
     vlan, inventory, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE MAIL: {vlan} ---")
-    print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
+    print(f"--- Tempo assegnato dallo scheduler: {duration:.1f} secondi ---")
     
     # Creiamo un inventario al volo solo per windows (se serve) o usiamo quello esistente
     # Nota: qui semplifico assumendo che l'inventario sia già popolato o fisso.
@@ -564,3 +564,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
