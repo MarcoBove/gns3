@@ -7,13 +7,14 @@ if NOT "%~1"=="" goto :MODE_RECEIVE
 goto :MODE_EXECUTE
 
 :MODE_RECEIVE
-:: %1 = TARGET (File o Url), %2 = ACTION (print, generic, video, pdf, mail)
-set TARGET=%~1
-set ACTION=%~2
+:: %1 = TARGET (File o Url), %2 = ACTION
+set "INPUT_TARGET=%~1"
+set "ACTION=%~2"
 
 if "%ACTION%"=="" set ACTION=generic
 
-echo %ACTION% %TARGET% > "%CMD_FILE%"
+:: NOTA: Ho tolto lo spazio prima di > per evitare spazi fantasma alla fine della riga
+echo %ACTION% %INPUT_TARGET%> "%CMD_FILE%"
 schtasks /run /tn OpenBrowser
 exit /b 0
 
@@ -21,25 +22,23 @@ exit /b 0
 :: --- FASE 2: ESECUZIONE VISIBILE ---
 set /p MY_CMD=<"%CMD_FILE%"
 
-for /f "tokens=1,2 delims= " %%a in ("%MY_CMD%") do (
-    set TYPE=%%a
-    set TARGET=%%b
+:: CORREZIONE CRITICA:
+:: 1. Usa "tokens=1*" invece di "1,2". Se il nome file ha spazi, "1*" prende tutto il resto della riga.
+:: 2. Usa le virgolette nel SET: set "TARGET=%%b". Questo protegge le URL che contengono "&".
+for /f "tokens=1* delims= " %%a in ("%MY_CMD%") do (
+    set "TYPE=%%a"
+    set "TARGET=%%b"
 )
 
 cd /d "%WORKER_DIR%"
 
 :: --- SELEZIONE AZIONE ---
 
-:: CASO 1: STAMPA (Nuovo)
+:: CASO 1: STAMPA
 if "%TYPE%"=="print" (
-    echo [INFO] Invio stampa di %TARGET% alla stampante predefinita...
-    :: Usa PowerShell per stampare senza aprire GUI complicate
-    .\PDFtoPrinter.exe %TARGET%
-    
-    :: Aspettiamo 15 secondi che lo spooler riceva il file
+    echo [INFO] Invio stampa...
+    .\PDFtoPrinter.exe "%TARGET%"
     timeout /t 15 /nobreak
-    
-    :: Pulizia: Chiudiamo il lettore PDF che potrebbe essere rimasto aperto (Acrobat o Edge)
     taskkill /IM AcroRd32.exe /F /T 2>nul
     taskkill /IM msedge.exe /F /T 2>nul
     goto :EOF
@@ -54,13 +53,15 @@ if "%TYPE%"=="mail" (
 :: CASO 3: PDF (Lettura a video)
 if "%TYPE%"=="pdf" (
     taskkill /IM msedge.exe /F /T 2>nul
-    .\venv\Scripts\python.exe pdf_worker.py %TARGET%
+    :: Aggiunte virgolette attorno al TARGET per gestire spazi nei nomi file
+    .\venv\Scripts\python.exe pdf_worker.py "%TARGET%"
     goto :EOF
 )
 
-:: CASO 4: WEB
+:: CASO 4: WEB (Default)
 taskkill /IM msedge.exe /F /T 2>nul
-.\venv\Scripts\python.exe smart_worker.py %TARGET% %TYPE%
+:: CORREZIONE: Aggiunte virgolette. Se l'URL ha "&", senza virgolette il comando si rompe qui.
+.\venv\Scripts\python.exe smart_worker.py "%TARGET%" "%TYPE%"
 
 :EOF
 exit /b 0
