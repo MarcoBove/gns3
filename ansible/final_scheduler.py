@@ -92,7 +92,7 @@ def run_ansible_command(url, action_type, has_windows, inventory, linux_user, li
         
     print(f"[OK {inventory}] Comandi inviati -> {url} ({action_type})")
 
-def web_simulation(args, time):
+def web_simulation(args, duration):
     vlan, registration, websites, inventory, linux_user, linux_path, windows_user, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE WEB: {vlan} ---")
     print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
@@ -130,7 +130,7 @@ def web_simulation(args, time):
 
             run_ansible_command(target_url, action_type, has_windows_hosts, inventory, linux_user, linux_path, windows_bat_path)
             
-            wait_time = time #random.randint(60, 100)
+            wait_time = duration #random.randint(60, 100)
             print(f"[WAIT {vlan}] Attesa di {wait_time} secondi...\n")
             time.sleep(wait_time)
             
@@ -196,7 +196,7 @@ def run_pdf_command(pdf_path, action_type, has_windows, inventory, linux_user, l
             print(f"[ERROR {inventory}] Windows PDF cmd: {e}")
 
 
-def pdf_simulation(args, time):
+def pdf_simulation(args, duration):
     vlan, registration, pdf_json_path, inventory, linux_user, linux_path, windows_user, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE PDF: {vlan} ---")
     print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
@@ -235,7 +235,7 @@ def pdf_simulation(args, time):
                 # Passiamo has_windows=True e il bat path
                 run_pdf_command(target_pdf, "pdf", True, inventory, "", "", windows_bat_path)
 
-            wait_time = time #random.randint(60, 100)
+            wait_time = duration #random.randint(60, 100)
             print(f"[WAIT {vlan}] Lettura in corso per {wait_time} secondi...\n")
             time.sleep(wait_time)
             
@@ -266,7 +266,7 @@ def run_print_command(pdf_path, has_windows, inventory, windows_bat_path):
     except Exception as e:
         print(f"[ERROR {inventory}] Print cmd: {e}")
 
-def print_simulation(args, time):
+def print_simulation(args, duration):
     vlan, pdf_json_path, inventory, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE STAMPA: {vlan} ---")
     print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
@@ -293,7 +293,7 @@ def print_simulation(args, time):
             run_print_command(target_pdf, has_windows, inventory, windows_bat_path)
             
             # Attesa realistica tra una stampa e l'altra (es. ogni 2-5 minuti)
-            wait_time = time #random.randint(120, 300)
+            wait_time = duration #random.randint(120, 300)
             print(f"[WAIT {vlan}] Prossima stampa tra {wait_time} secondi...\n")
             time.sleep(wait_time)
             
@@ -325,7 +325,7 @@ def run_mail_command(has_windows, inventory, windows_bat_path):
         print(f"[ERROR {inventory}] Mail cmd: {e}")
 
 
-def read_mail_simulation(args, time):
+def read_mail_simulation(args, duration):
     vlan, inventory, windows_bat_path = args
     print(f"--- AVVIO SIMULAZIONE MAIL: {vlan} ---")
     print(f"--- Tempo assegnato dallo scheduler: {time:.1f} secondi ---")
@@ -345,7 +345,7 @@ def read_mail_simulation(args, time):
             
             # Lascia la mail aperta per molto tempo (es. 5-10 minuti)
             # O il tempo che preferisci
-            wait_time = time #random.randint(300, 600) 
+            wait_time = duration #random.randint(300, 600) 
             print(f"[WAIT {vlan}] Consultazione mail per {wait_time} secondi...\n")
             time.sleep(wait_time)
             
@@ -562,4 +562,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
