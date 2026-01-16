@@ -67,5 +67,47 @@ certreq -submit -attrib "CertificateTemplate:WebServer" C:\temp\webserver.csr C:
 ```
 
 
+### Portare certificato sul Debian e convertire/creare fullchain
 
+Copia `web_lab_local.cer` e `rootCA.cer` sul Debian (es. nella home via scp).
+
+Converti/rinomina in `.crt` (se sono in PEM base64, basta rinominare; ma facciamo una conversione sicura):
+
+```bash
+# se sono già in Base-64 PEM:
+sudo cp /home/you/web_lab_local.cer /etc/ssl/certs/webserver.crt
+sudo cp /home/you/rootCA.cer /etc/ssl/certs/rootCA.crt
+
+# in alternativa converti da DER a PEM (solo se file binario):
+# sudo openssl x509 -inform DER -in web_lab_local.cer -out /etc/ssl/certs/webserver.crt
+
+```
+
+Crea il fullchain (server cert seguito dalla CA radice):
+
+```bash
+sudo sh -c 'cat /etc/ssl/certs/webserver.crt /etc/ssl/certs/rootCA.crt > /etc/ssl/certs/web_fullchain.crt'
+sudo chmod 644 /etc/ssl/certs/web_fullchain.crt
+
+```
+
+Verifica il certificato e SAN:
+
+```bash
+openssl x509 -in /etc/ssl/certs/webserver.crt -noout -subject -issuer -dates
+openssl x509 -in /etc/ssl/certs/webserver.crt -noout -text | grep -A4 "Subject Alternative Name"
+
+```
+
+---
+
+Esegui solo:
+
+```bash
+sudo cp /etc/ssl/certs/rootCA.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+
+```
+
+E **non** installare la fullchain o il certificato del webserver nel trust store.
 
