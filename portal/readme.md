@@ -57,3 +57,15 @@ Poi copia `/tmp/webserver.csr` sul server CA (via SCP, WinSCP, ecc.)
 
 copia dal server la rootca alla debian
 
+
+
+Apri **PowerShell** (come amministratore) e digita:
+
+```powershell
+certreq -submit -attrib "CertificateTemplate:WebServer" C:\temp\webserver.csr C:\temp\webserver.cer
+
+```
+
+
+
+
