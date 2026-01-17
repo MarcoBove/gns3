@@ -1,15 +1,22 @@
-########################################################
-#                 DEBUG DIAGNOSTICA                    #
-########################################################
+:MODE_RECEIVE
+set "P1=%~1"
+set "P2=%~2"
+set "P3=%~3"
 
-[1] Contenuto grezzo letto dal file txt:
-    "LXb3EKWsInQ https://www.youtube.com/watch?v"
+:: Se esiste un terzo parametro, significa che Windows ha spezzato l'URL sull'uguale (=)
+:: P1 = prima parte URL, P2 = ID video, P3 = Azione (video)
+if NOT "%P3%"=="" (
+    set "INPUT_TARGET=%P1%=%P2%"
+    set "ACTION=%P3%"
+) else (
+    :: Nessuno split, tutto normale
+    set "INPUT_TARGET=%P1%"
+    set "ACTION=%P2%"
+)
 
-[2] Variabile TYPE estratta:
-    [LXb3EKWsInQ]
+if "%ACTION%"=="" set ACTION=generic
 
-[3] Variabile TARGET estratta:
-    [https://www.youtube.com/watch?v]
-
-[4] Comando Python che sto per lanciare:
-    .\venv\Scripts\python.exe smart_worker.py "https://www.youtube.com/watch?v" "LXb3EKWsInQ"
+:: Scriviamo nel file
+echo %ACTION% %INPUT_TARGET%> "%CMD_FILE%"
+schtasks /run /tn OpenBrowser
+exit /b 0
