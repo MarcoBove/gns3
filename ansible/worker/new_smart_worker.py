@@ -17,31 +17,40 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
 def setup_driver(browser_type="edge"):
-    """Inizializza il browser. Se offline, usa il driver locale."""
+    """Inizializza il browser. Gestisce Edge (Windows) e Firefox (Linux)."""
     driver = None
     try:
+        # --- WINDOWS (EDGE) ---
         if browser_type == "edge":
             options = webdriver.EdgeOptions()
             options.add_argument("--start-maximized")
-            # options.add_argument("--headless") 
-
+            
             try:
-                # Tenta la via automatica (richiede internet)
+                # Tenta download automatico
                 service = EdgeService(EdgeChromiumDriverManager().install())
             except Exception as e:
-                print(f"[WARN] Impossibile scaricare driver online. Uso driver locale. Err: {e}")
-                # Percorso manuale al file che hai copiato
+                print(f"[WARN] Driver online fallito. Uso locale. {e}")
+                # Percorso manuale di backup (modifica se necessario)
                 local_driver_path = r"C:\Users\Student\user_behavior_generation\worker\msedgedriver.exe"
                 service = EdgeService(local_driver_path)
 
             driver = webdriver.Edge(service=service, options=options)
         
-        elif browser_type == "chrome":
-             # ... codice chrome esistente ...
-             pass
+        # --- LINUX (FIREFOX) - RIPRISTINATO ---
         elif browser_type == "firefox":
-             # ... codice firefox esistente ...
-             pass
+            options = webdriver.FirefoxOptions()
+            # Aggiungo fix per TMPDIR su Linux (spesso necessario su macchine virtuali/snap)
+            user = os.environ.get('USER', 'student')
+            os.environ["TMPDIR"] = f"/home/{user}/tmp_firefox"
+            
+            # Scarica e installa GeckoDriver automaticamente
+            service = FirefoxService(GeckoDriverManager().install())
+            driver = webdriver.Firefox(service=service, options=options)
+            
+        elif browser_type == "chrome":
+             options = webdriver.ChromeOptions()
+             options.add_argument("--start-maximized")
+             driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
             
         return driver
     except Exception as e:
@@ -52,8 +61,6 @@ def human_scroll(driver):
     """Simula lo scroll umano."""
     try:
         total_height = int(driver.execute_script("return document.body.scrollHeight"))
-        # Scrolla un po', non necessariamente fino in fondo se la pagina è lunghissima
-        # Facciamo max 5 step di scroll per non perdere troppo tempo sullo stesso url
         steps = random.randint(3, 8)
         
         current_pos = 0
@@ -71,7 +78,6 @@ def human_scroll(driver):
 
 def browse_continuously(driver, duration):
     """
-    Sostituisce crawl_recursive.
     Naviga (Scroll + Click) finché non scade il tempo 'duration'.
     """
     start_time = time.time()
@@ -89,7 +95,7 @@ def browse_continuously(driver, duration):
         # 2. Cerca un link per cambiare pagina
         try:
             links = driver.find_elements(By.TAG_NAME, "a")
-            # Filtro base per trovare link "veri"
+            # Filtro per link validi
             valid_links = [l for l in links if l.get_attribute('href') and "http" in l.get_attribute('href') and len(l.get_attribute('href')) > 10]
             
             if len(valid_links) > 0:
@@ -116,24 +122,22 @@ def watch_video(driver, duration):
     except:
         pass
     
-    # Dorme per la durata richiesta
     time.sleep(duration)
 
 # --- MAIN ---
 if __name__ == "__main__":
     
     # --- CONFIGURAZIONE TEMPO ---
-    # Se vuoi testare a mano, metti un numero qui (es. 60). 
-    # Se lasci None, sceglie random tra 5 e 7 minuti (300-420s).
+    # Se None, usa random tra 300s (5min) e 420s (7min)
     OVERRIDE_DURATION = None 
     
     if OVERRIDE_DURATION is not None:
         duration = OVERRIDE_DURATION
     else:
-        duration = random.randint(300, 420)
+        duration = random.randint(240, 300)
     # ----------------------------
 
-    # Argomenti: 1=URL, 2=TIPO (video, news, shop)
+    # Argomenti: 1=URL, 2=TIPO (video, generic)
     if len(sys.argv) < 2:
         print("Usage: smart_worker.py <URL> [TYPE]")
         sys.exit(1)
@@ -148,19 +152,18 @@ if __name__ == "__main__":
     
     if driver:
         try:
-            print(f"[OPEN] {url} - Durata prevista: {duration}s")
+            print(f"[OPEN] {url} - Durata prevista: {duration}s su {browser}")
             driver.get(url)
-            time.sleep(3) # Attesa caricamento
+            time.sleep(3)
             
             if "youtube" in url or mode == "video":
                 watch_video(driver, duration)
             else:
-                # Modalità Navigazione a tempo (NON più ricorsiva)
                 browse_continuously(driver, duration)
                 
             print("[DONE] Tempo scaduto. Sessione finita.")
             
         except Exception as e:
-            print(f"[ERROR] {e}")
+            print(f"[ERROR] Main execution error: {e}")
         finally:
             driver.quit()
