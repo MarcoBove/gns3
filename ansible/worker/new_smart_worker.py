@@ -24,6 +24,8 @@ def setup_driver(browser_type="edge"):
         if browser_type == "edge":
             options = webdriver.EdgeOptions()
             options.add_argument("--start-maximized")
+            # options.add_argument("--headless") 
+            # options.add_argument("--window-size=1920,1080")
             
             try:
                 # Tenta download automatico
@@ -39,6 +41,15 @@ def setup_driver(browser_type="edge"):
         # --- LINUX (FIREFOX) - RIPRISTINATO ---
         elif browser_type == "firefox":
             options = webdriver.FirefoxOptions()
+            # --- ABILITA HEADLESS ---
+            options.add_argument("--headless") 
+            # ------------------------
+
+            # Trucco: impostiamo una dimensione fissa anche se invisibile
+            # Altrimenti alcuni siti "mobile-responsive" si rompono
+            options.add_argument("--width=1920")
+            options.add_argument("--height=1080")
+            
             # Aggiungo fix per TMPDIR su Linux (spesso necessario su macchine virtuali/snap)
             user = os.environ.get('USER', 'student')
             os.environ["TMPDIR"] = f"/home/{user}/tmp_firefox"
