@@ -114,7 +114,17 @@ def browse_continuously(driver, duration):
         try:
             links = driver.find_elements(By.TAG_NAME, "a")
             # Filtro per link validi (http e lunghezza decente)
-            valid_links = [l for l in links if l.get_attribute('href') and "http" in l.get_attribute('href') and len(l.get_attribute('href')) > 10]
+            # Recupera il dominio base (es. "wikipedia.org")
+            current_domain = driver.current_url.split("/")[2]
+
+            # Filtra: tieni solo i link che contengono lo stesso dominio
+            valid_links = [
+                l for l in links 
+                if l.get_attribute('href') 
+                and "http" in l.get_attribute('href') 
+                and len(l.get_attribute('href')) > 10
+                and current_domain in l.get_attribute('href') # <--- QUESTA È LA PROTEZIONE
+            ]
             
             if len(valid_links) > 0:
                 target = random.choice(valid_links)
