@@ -5,6 +5,42 @@ import subprocess
 import sys
 import os
 
+def create_lab_ansible_inventory(hosts_data, inventory, win_user1, win_user2):
+    """
+    Crea un inventario specifico per il Laboratorio (Solo Windows).
+    Genera due gruppi: uno per il primo utente e uno per il secondo.
+    """
+    windows_hosts = []
+
+    # 1. Filtra gli host (Nel Lab assumiamo siano tutti Windows o forziamo l'uso)
+    for host in hosts_data:
+        ip = host.get('ip')
+        # Se nel json c'è scritto 'linux' per sbaglio, lo ignoriamo o lo trattiamo come win?
+        # Qui prendiamo tutto ciò che è windows o che non ha os specificato (assumendo Lab=Win)
+        os_type = host.get('os', 'windows').lower()
+        
+        if os_type == 'windows':
+            windows_hosts.append(ip)
+
+    try:
+        with open(inventory, 'w') as f:
+            # --- GRUPPO 1: Utente Primario (workers_windows) ---
+            # Manteniamo questo nome standard così il comando cmd_win1 funziona subito
+            f.write("[workers_windows]\n")
+            for ip in windows_hosts:
+                f.write(f"{ip} ansible_user={win_user1} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
+            
+            # --- GRUPPO 2: Utente Secondario (workers_windows_secondary) ---
+            f.write("\n[workers_windows_secondary]\n")
+            for ip in windows_hosts:
+                f.write(f"{ip} ansible_user={win_user2} ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
+
+    except Exception as e:
+        print(f"[ERROR] Errore scrittura inventario Lab {inventory}: {e}")
+        return False
+            
+    # print(f"[INFO] Inventario Lab {inventory} creato per 2 Utenti su {len(windows_hosts)} Host.")
+    return len(windows_hosts) > 0
 def run_lab_ansible_command(url, action_type, inventory, win_bat1, win_bat2):
     """
     Lancia i comandi WEB per il Laboratorio su DUE utenti Windows.
