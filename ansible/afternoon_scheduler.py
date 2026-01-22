@@ -5,6 +5,137 @@ import subprocess
 import sys
 import os
 
+def run_lab_ansible_command(url, action_type, inventory, win_bat1, win_bat2):
+    """
+    Helper specifico per il Laboratorio:
+    Lancia il comando su DUE configurazioni Windows diverse (es. due utenti/task diversi).
+    """
+    
+    # --- COMANDO PER WINDOWS USER 1 ---
+    cmd_win1 = [
+        "ansible", "workers_windows",
+        "-i", inventory,
+        "-m", "raw",
+        "-a", f"{win_bat1} {url} {action_type}"
+    ]
+
+    # --- COMANDO PER WINDOWS USER 2 ---
+    cmd_win2 = [
+        "ansible", "workers_windows",
+        "-i", inventory,
+        "-m", "raw",
+        "-a", f"{win_bat2} {url} {action_type}"
+    ]
+
+    # ESECUZIONE 1
+    try:
+        # print(f"   [DEBUG] Executing Win1: {win_bat1}")
+        subprocess.run(cmd_win1, capture_output=True, text=True)
+    except Exception as e:
+        print(f"[ERROR {inventory}] Win1 cmd: {e}")
+
+    # ESECUZIONE 2
+    try:
+        # print(f"   [DEBUG] Executing Win2: {win_bat2}")
+        subprocess.run(cmd_win2, capture_output=True, text=True)
+    except Exception as e:
+        print(f"[ERROR {inventory}] Win2 cmd: {e}")
+
+    print(f"[OK {inventory}] Comandi Lab inviati (2 Utenti) -> {url}")
+
+
+def web_lab_simulation(args, duration):
+    """
+    Simulazione WEB specifica per Laboratorio (Solo Windows, 2 Utenti).
+    Args attesi: vlan, registration, websites, inventory, win_user1, win_bat1, win_user2, win_bat2
+    """
+    vlan, registration, websites, inventory, win_user1, win_bat1, win_user2, win_bat2 = args
+    
+    print(f"--- AVVIO SIMULAZIONE LAB WEB: {vlan} (Dual Windows) ---")
+    print(f"--- Tempo: {duration:.1f}s ---")
+    
+    web_config = load_json(websites)
+    reg_config = load_json(registration)
+
+    # Nota: Assumiamo che create_ansible_inventory gestisca la creazione dell'inventario.
+    # Se quella funzione accetta solo 2 utenti (linux/win), passagliene uno dei due win come primario, 
+    # tanto l'esecuzione usa i .bat path che sono passati nel comando raw.
+    if 'HOSTS_LIST' in reg_config:
+        hosts_data = reg_config['HOSTS_LIST']
+        # Creiamo inventario (passiamo win_user1 come riferimento principale)
+        create_ansible_inventory(hosts_data, inventory, "no_linux_user", win_user1)
+    else:
+        print(f"[FATAL {vlan}] Nessuna lista host trovata.")
+        return
+
+    # Estrazione URLs
+    raw_entries = [site['url'] for site in web_config.get('IT', [])]
+    if not raw_entries:
+        print(f"[WARN {vlan}] Nessun URL trovato.")
+        return
+
+    try:
+        # Loop Singolo (Esegue e poi dorme per tutta la durata)
+        # O Loop continuo finché duration non scade (dipende da come vuoi gestirlo, qui faccio single shot + sleep come tuo esempio)
+        
+        full_entry = random.choice(raw_entries)
+        parts = full_entry.split()
+        target_url = parts[0]
+        action_type = parts[1] if len(parts) > 1 else "generic"
+
+        # Chiamata doppia Windows
+        run_lab_ansible_command(target_url, action_type, inventory, win_bat1, win_bat2)
+        
+        print(f"[WAIT {vlan}] Attesa termine task ({duration:.0f}s)...")
+        time.sleep(duration)
+
+    except KeyboardInterrupt:
+        print(f"\n[STOP {vlan}] Lab Web interrotto.")
+    except Exception as e:
+        print(f"[CRITICAL {vlan}] Errore Lab Web: {e}")
+
+
+def pdf_lab_simulation(args, duration):
+    """
+    Simulazione PDF specifica per Laboratorio (Solo Windows, 2 Utenti).
+    Args attesi: vlan, registration, pdf_json, inventory, win_user1, win_bat1, win_user2, win_bat2
+    """
+    vlan, registration, pdf_json_path, inventory, win_user1, win_bat1, win_user2, win_bat2 = args
+    
+    print(f"--- AVVIO SIMULAZIONE LAB PDF: {vlan} (Dual Windows) ---")
+    print(f"--- Tempo: {duration:.1f}s ---")
+    
+    reg_config = load_json(registration)
+    pdf_config = load_json(pdf_json_path)
+    
+    # 1. Recupero PDF solo per Windows
+    pdfs_windows = pdf_config.get('windows', [])
+    if not pdfs_windows:
+        print(f"[WARN {vlan}] Nessun PDF Windows trovato nel config.")
+        time.sleep(duration)
+        return
+
+    # 2. Inventario
+    if 'HOSTS_LIST' in reg_config:
+        hosts_data = reg_config['HOSTS_LIST']
+        create_ansible_inventory(hosts_data, inventory, "no_linux_user", win_user1)
+
+    try:
+        # Scelta PDF
+        target_pdf = random.choice(pdfs_windows)
+        
+        # Invochiamo l'helper usando come action "pdf"
+        # Nota: Assicurati che il tuo .bat gestisca il secondo argomento come 'pdf' action
+        run_lab_ansible_command(target_pdf, "pdf", inventory, win_bat1, win_bat2)
+
+        print(f"[WAIT {vlan}] Lettura PDF in corso ({duration:.0f}s)...")
+        time.sleep(duration)
+
+    except KeyboardInterrupt:
+        print(f"\n[STOP {vlan}] Lab PDF interrotto.")
+    except Exception as e:
+        print(f"[CRITICAL {vlan}] Errore Lab PDF: {e}")
+
 
 
 def main():
