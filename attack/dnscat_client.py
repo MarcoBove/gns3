@@ -19,6 +19,36 @@ except ImportError as e:
 
 # --- Funzioni di Utilità (Helpers) ---
 
+def parse_packet(self, hex_response):
+        """Analizza la risposta del server"""
+        try:
+            # Struttura Packet dnscat2: [ID 2 byte][Type 1 byte][SessionID 2 byte]...
+            # Nota: I byte sono rappresentati da 2 caratteri hex ciascuno.
+            
+            packet_type = hex_response[4:6] # Il 3° byte è il tipo
+            
+            if packet_type == "02": # Type 02 = FIN (Chiusura/Errore)
+                # Il payload inizia dopo l'header standard (circa al byte 9, quindi char 18)
+                # Ma spesso nei messaggi di errore semplici è tutto testo dopo l'header.
+                payload_hex = hex_response[18:] 
+                try:
+                    error_msg = binascii.unhexlify(payload_hex).decode('utf-8', errors='ignore')
+                    return f"ERRORE DAL SERVER (FIN): {error_msg}"
+                except:
+                    return "ERRORE DAL SERVER (FIN) - Impossibile decodificare il messaggio"
+            
+            elif packet_type == "01": # Type 01 = MSG (Dati)
+                return "DATI RICEVUTI (Connessione Attiva)"
+            
+            elif packet_type == "00": # Type 00 = SYN (Handshake)
+                return "HANDSHAKE RICEVUTO"
+                
+            return f"Pacchetto Tipo {packet_type} sconosciuto"
+            
+        except Exception as e:
+            return f"Errore parsing risposta: {e}"
+
+
 def to_hex(data):
     if isinstance(data, str):
         data = data.encode()
@@ -96,22 +126,29 @@ class Dnscat2Client:
         return f"{rand_id}{msg_type}{self.session_id}{seq_num}{options}"
 
     def start_session(self):
-        print(f"\n--- AVVIO CLIENT DNSCAT2 (Simulazione) ---")
-        print(f"[*] Dominio Target: {self.domain}")
-        print(f"[*] DNS Server (Gateway): {self.dns_server}")
-        print(f"[*] Secret configurato: {'SÌ' if self.psk else 'NO'}")
+        print(f"\n--- AVVIO CLIENT DNSCAT2 (Simulazione Traffico) ---")
+        print(f"[*] Dominio: {self.domain}")
+        print(f"[*] Server: {self.dns_server}")
+        print(f"[*] Modalità: Plaintext (Assicurati che il server abbia --security=open)")
         
         # 1. Creazione pacchetto SYN
+        # Flags 0000 indicano nessuna cifratura.
         syn_packet = self.create_syn_packet()
-        print(f"[*] Pacchetto SYN generato: {syn_packet}")
+        print(f"[*] Invio SYN...")
         
         # 2. Invio
         response = self.send_dns_query(syn_packet, "TXT")
         
         if response:
-            print(f"[+] CONNESSIONE RIUSCITA! Risposta dal server: {response}")
+            print(f"[+] Risposta Raw: {response}")
+            msg = self.parse_packet(response)
+            print(f"[!] STATO: {msg}")
+            
+            if "ERRORE" in msg:
+                print("\n[SUGGERIMENTO] Il server ha rifiutato la connessione.")
+                print("Esegui sul server Kali: ruby dnscat2.rb --security=open")
         else:
-            print("[-] Nessuna risposta valida ricevuta (Tunnel non stabilito).")
+            print("[-] Nessuna risposta (Packet Loss o Server Offline).")
 
 # --- MAIN ---
 
