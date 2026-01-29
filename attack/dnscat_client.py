@@ -3,7 +3,7 @@ import binascii
 import random
 import time
 import socket
-import argparse  # Aggiunto per gestire gli argomenti da riga di comando
+import argparse
 import sys
 
 # Importazioni librerie esterne
@@ -18,36 +18,6 @@ except ImportError as e:
     sys.exit(1)
 
 # --- Funzioni di Utilità (Helpers) ---
-
-def parse_packet(self, hex_response):
-        """Analizza la risposta del server"""
-        try:
-            # Struttura Packet dnscat2: [ID 2 byte][Type 1 byte][SessionID 2 byte]...
-            # Nota: I byte sono rappresentati da 2 caratteri hex ciascuno.
-            
-            packet_type = hex_response[4:6] # Il 3° byte è il tipo
-            
-            if packet_type == "02": # Type 02 = FIN (Chiusura/Errore)
-                # Il payload inizia dopo l'header standard (circa al byte 9, quindi char 18)
-                # Ma spesso nei messaggi di errore semplici è tutto testo dopo l'header.
-                payload_hex = hex_response[18:] 
-                try:
-                    error_msg = binascii.unhexlify(payload_hex).decode('utf-8', errors='ignore')
-                    return f"ERRORE DAL SERVER (FIN): {error_msg}"
-                except:
-                    return "ERRORE DAL SERVER (FIN) - Impossibile decodificare il messaggio"
-            
-            elif packet_type == "01": # Type 01 = MSG (Dati)
-                return "DATI RICEVUTI (Connessione Attiva)"
-            
-            elif packet_type == "00": # Type 00 = SYN (Handshake)
-                return "HANDSHAKE RICEVUTO"
-                
-            return f"Pacchetto Tipo {packet_type} sconosciuto"
-            
-        except Exception as e:
-            return f"Errore parsing risposta: {e}"
-
 
 def to_hex(data):
     if isinstance(data, str):
@@ -87,7 +57,7 @@ class Dnscat2Client:
         self.encryption_keys = {}
         self.sequence_number = random.randint(0, 65535)
         
-        # Generazione Chiavi ECDH (P-256) per eventuale cifratura
+        # Generazione Chiavi ECDH (P-256) per eventuale cifratura futura
         self.client_sk = SigningKey.generate(curve=SECP256k1)
         self.client_vk = self.client_sk.verifying_key
 
@@ -100,18 +70,21 @@ class Dnscat2Client:
         resolver.port = self.dns_port
         
         try:
-            print(f"[*] Invio Query TXT a {self.dns_server}: {full_query[:50]}...") # Log parziale
+            print(f"[*] Invio Query TXT a {self.dns_server}: {full_query[:50]}...") 
             answers = resolver.resolve(full_query, record_type)
             
             if record_type == "TXT":
                 for rdata in answers:
-                    txt_resp = b"".join(rdata.strings).decode()
+                    # Gestione differenze versione dnspython
+                    if hasattr(rdata, 'strings'):
+                        txt_resp = b"".join(rdata.strings).decode()
+                    else:
+                        txt_resp = rdata.to_text().strip('"')
                     return txt_resp
             return None
             
         except Exception as e:
-            # È normale avere errori DNS se il server non risponde correttamente o simula packet loss
-            print(f"[!] Errore DNS (normale se il server C2 non è attivo): {e}")
+            print(f"[!] Errore DNS: {e}")
             return None
 
     def create_syn_packet(self):
@@ -120,10 +93,37 @@ class Dnscat2Client:
         msg_type = "00" # SYN
         seq_num = f"{self.sequence_number:04x}"
         options = "0000" 
-        
-        # Se c'è un secret, potremmo voler segnalare supporto cifratura, 
-        # ma per il test di base inviamo un SYN standard.
         return f"{rand_id}{msg_type}{self.session_id}{seq_num}{options}"
+
+    def parse_packet(self, hex_response):
+        """Analizza la risposta del server"""
+        try:
+            # Struttura Packet dnscat2: [ID 2 byte][Type 1 byte][SessionID 2 byte]...
+            # Nota: I byte sono rappresentati da 2 caratteri hex ciascuno.
+            
+            if len(hex_response) < 6:
+                return "Risposta troppo corta"
+
+            packet_type = hex_response[4:6] # Il 3° byte è il tipo
+            
+            if packet_type == "02": # Type 02 = FIN (Chiusura/Errore)
+                payload_hex = hex_response[18:] 
+                try:
+                    error_msg = binascii.unhexlify(payload_hex).decode('utf-8', errors='ignore')
+                    return f"ERRORE DAL SERVER (FIN): {error_msg}"
+                except:
+                    return "ERRORE DAL SERVER (FIN) - Impossibile decodificare il messaggio"
+            
+            elif packet_type == "01": # Type 01 = MSG (Dati)
+                return "DATI RICEVUTI (Connessione Attiva)"
+            
+            elif packet_type == "00": # Type 00 = SYN (Handshake)
+                return "HANDSHAKE RICEVUTO - Connessione Stabilita!"
+                
+            return f"Pacchetto Tipo {packet_type} sconosciuto"
+            
+        except Exception as e:
+            return f"Errore parsing risposta: {e}"
 
     def start_session(self):
         print(f"\n--- AVVIO CLIENT DNSCAT2 (Simulazione Traffico) ---")
@@ -132,9 +132,7 @@ class Dnscat2Client:
         print(f"[*] Modalità: Plaintext (Assicurati che il server abbia --security=open)")
         
         # 1. Creazione pacchetto SYN
-        # Flags 0000 indicano nessuna cifratura.
         syn_packet = self.create_syn_packet()
-        print(f"[*] Invio SYN...")
         
         # 2. Invio
         response = self.send_dns_query(syn_packet, "TXT")
@@ -154,15 +152,12 @@ class Dnscat2Client:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Client Dnscat2 Python per Tesi')
-    
-    # Argomenti obbligatori e opzionali
-    parser.add_argument('--domain', required=True, help='Il dominio malevolo (es. attacco.com)')
+    parser.add_argument('--domain', required=True, help='Il dominio malevolo (es. test.com)')
     parser.add_argument('--dns', required=True, help='IP del server DNS/Gateway (es. 10.0.40.1)')
-    parser.add_argument('--secret', default="", help='Pre-shared secret per autenticazione (Opzionale)')
+    parser.add_argument('--secret', default="", help='Non usato in modalità open')
     parser.add_argument('--port', type=int, default=53, help='Porta DNS (Default: 53)')
 
     args = parser.parse_args()
 
-    # Avvio Client
     client = Dnscat2Client(args.domain, args.dns, args.secret, args.port)
     client.start_session()
