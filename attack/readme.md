@@ -12,6 +12,18 @@ https://www.dropbox.com/scl/fi/usanogb6nuokrt87sd2ex/cv.rar?rlkey=shsd54np60fpzy
 
 https://www.dropbox.com/scl/fi/3zc6fa53hax49zfjzhj4m/Privacy_Documentation_2026.rar?rlkey=me74rbd9mbc9surjtjhzhs8up&st=iitmbxsg&dl=0
 
+https://www.youtube.com/watch?v=8wA53QfYXSg&t=1270s
+
+https://gitlab.com/kalilinux/packages/dnscat2
+
+https://pentestlab.blog/tag/dnscat2/
+
+https://www.hackingarticles.in/dnscat2-application-layer-cc/
+
+https://www.blackhillsinfosec.com/powershell-dns-command-control-with-dnscat2-powershell/
+
+
+
 **Subject:** URGENT: Administrative Procedure Updates and Privacy Compliance Form
 
 **From:** administration.rectorate@uni-fake.ac (Spoofed domain)
