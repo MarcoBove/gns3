@@ -1,3 +1,10 @@
+osboxes@osboxes:~$ ps aux | grep -i dnscat 
+osboxes     4770  0.0  0.1   9144  2352 pts/0    S+   03:32   0:00 grep --color=auto -i dnscat
+
+
+
+
+
 winrar attack
 https://github.com/Syrins/CVE-2025-8088-Winrar-Tool-Gui
 
