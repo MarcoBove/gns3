@@ -23,6 +23,9 @@ https://www.hackingarticles.in/dnscat2-application-layer-cc/
 https://www.blackhillsinfosec.com/powershell-dns-command-control-with-dnscat2-powershell/
 
 
+https://downloads.skullsecurity.org/dnscat2/
+
+
 
 **Subject:** URGENT: Administrative Procedure Updates and Privacy Compliance Form
 
