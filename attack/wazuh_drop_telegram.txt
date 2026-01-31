@@ -1,0 +1,11 @@
+<command>
+    <name>firewall-drop</name>
+    <executable>firewall-drop</executable>
+    <timeout_allowed>yes</timeout_allowed>
+  </command>
+
+  <active-response>
+    <command>firewall-drop</command>
+    <location>defined-agent</location>
+    <agent_id>004</agent_id> <rules_id>86601</rules_id> <timeout>600</timeout>
+    </active-response>
