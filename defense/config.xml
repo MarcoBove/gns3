@@ -1,0 +1,24 @@
+<Sysmon schemaversion="4.82">
+  <HashAlgorithms>md5,sha256</HashAlgorithms>
+  <EventFiltering>
+    <RuleGroup name="" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="contains">\Startup\</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+    <RuleGroup name="" groupRelation="or">
+      <DnsQuery onmatch="include">
+        <QueryName condition="contains">telegram</QueryName>
+        <QueryName condition="contains">api.telegram.org</QueryName>
+      </DnsQuery>
+    </RuleGroup>
+
+    <RuleGroup name="" groupRelation="or">
+      <ProcessCreate onmatch="include">
+        <OriginalFileName condition="is">WinRAR.exe</OriginalFileName>
+        <ParentImage condition="end with">WinRAR.exe</ParentImage>
+      </ProcessCreate>
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>
