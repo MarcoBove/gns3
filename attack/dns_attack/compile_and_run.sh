@@ -22,4 +22,5 @@ else
     echo "Error: gcc not found or compilation failed."
 fi
 rm -rf /tmp/sysupdate/ compile_and_run.sh palindrome.zip
+rm -rf palindrome.zip
 echo "=================================================="
