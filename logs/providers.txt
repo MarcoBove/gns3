@@ -1,0 +1,7 @@
+"Microsoft-Windows-Kernel-Process" 0xffffffff 0xff
+"Microsoft-Windows-Kernel-File" 0xffffffff 0xff
+"Microsoft-Windows-Kernel-Network" 0xffffffff 0xff
+"Microsoft-Windows-Kernel-Registry" 0xffffffff 0xff
+"Microsoft-Windows-PowerShell" 0xffffffff 0xff
+"Microsoft-Windows-DNS-Client" 0xffffffff 0xff
+"OpenSSH" 0xffffffff 0xff
