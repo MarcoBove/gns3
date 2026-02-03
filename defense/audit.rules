@@ -1,0 +1,14 @@
+## 1. Monitoraggio esecuzione comandi (Logga ogni comando lanciato - un po' rumoroso ma ottimo per lab)
+-a always,exit -F arch=b64 -S execve -k command_exec
+
+## 2. Monitoraggio Crontab (Persistenza)
+-w /etc/crontab -p wa -k cron_modification
+-w /var/spool/cron/crontabs/ -p wa -k cron_modification
+-w /etc/cron.d/ -p wa -k cron_modification
+
+## 3. Monitoraggio Cartella TMP e file nascosti (Installation)
+## Monitora scritture (w) ed esecuzioni (x) in /tmp
+-w /tmp/ -p wx -k tmp_activity
+
+## 4. Monitoraggio connessioni socket (Opzionale per vedere chi apre la rete)
+-a always,exit -F arch=b64 -S connect -k network_connect
