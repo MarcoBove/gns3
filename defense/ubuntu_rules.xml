@@ -1,0 +1,23 @@
+<group name="linux_attack,auditd,">
+
+  <rule id="100020" level="12">
+    <if_sid>80700</if_sid> <field name="audit.key">cron_modification</field>
+    <description>Detected change to Crontab files. Possible persistence.</description>
+    <mitre>
+      <id>T1053.003</id> </mitre>
+  </rule>
+
+  <rule id="100021" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tmp_activity</field>
+    <description>Suspicious activity (Write/Exec) in the /tmp folder. Possible Dropper.</description>
+  </rule>
+
+  <rule id="100022" level="13">
+    <if_sid>80790</if_sid> <field name="audit.command" type="pcre2">(?i)dnscat|iodine|tunnel</field>
+    <description>Detected DNS Tunneling software running.</description>
+    <mitre>
+      <id>T1071.004</id> </mitre>
+  </rule>
+
+</group>
