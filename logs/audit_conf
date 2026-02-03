@@ -1,0 +1,34 @@
+# Elimina tutte le regole esistenti
+-D
+# Dimensione del buffer (aumentare se il sistema è sotto carico)
+-b 8192
+# Modalità failure (1=log, 2=shutdown - metti 1)
+-f 1
+
+## --- 1. Monitoraggio File Critici (Identità e Rete) ---
+-w /etc/passwd -p wa -k identity_changes
+-w /etc/shadow -p wa -k identity_changes
+-w /etc/group -p wa -k identity_changes
+-w /etc/hosts -p wa -k network_files
+-w /etc/sysconfig/network -p wa -k network_files
+
+## --- 2. Monitoraggio Persistenza (Cron) ---
+-w /etc/cron.allow -p wa -k cron_config
+-w /etc/cron.deny -p wa -k cron_config
+-w /etc/cron.d/ -p wa -k cron_config
+-w /etc/cron.daily/ -p wa -k cron_config
+-w /etc/cron.hourly/ -p wa -k cron_config
+-w /var/spool/cron/ -p wa -k cron_config
+
+## --- 3. Monitoraggio Esecuzione Comandi (La parte più importante!) ---
+# Monitora execve su architettura 64bit
+-a always,exit -F arch=b64 -S execve -k audit_cmd_exec
+-a always,exit -F arch=b64 -S execveat -k audit_cmd_exec
+
+# Monitora execve su architettura 32bit (utile se hai compatibilità legacy)
+-a always,exit -F arch=b32 -S execve -k audit_cmd_exec
+-a always,exit -F arch=b32 -S execveat -k audit_cmd_exec
+
+## --- 4. Monitoraggio Comandi Privilegiati (Facoltativo ma utile) ---
+# Esempio: Qualcuno usa sudo
+-w /usr/bin/sudo -p x -k priv_esc
