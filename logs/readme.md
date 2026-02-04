@@ -21,3 +21,8 @@ logman stop MyKernelTrace -ets
 logman query MyKernelTrace -ets
 
 Get-WinEvent -Path "C:\KernelLog.etl" -Oldest
+
+
+
+
+sed -i 's/\r//' /etc/audit/rules.d/99-thesis.rules
