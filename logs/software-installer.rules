@@ -1,0 +1,22 @@
+# Linux Audit Daemon - Log collection Rules
+#
+# U _____ u _   _     _____  U _____ u   ____      ____      ____                ____   U _____ u         _       _   _   ____              _____   ____    
+# \| ___"|/| \ |"|   |_ " _| \| ___"|/U |  _"\ u U|  _"\ uU |  _"\ u     ___    / __"| u\| ___"|/     U  /"\  uU |"|u| | |  _"\    ___     |_ " _| |  _"\   
+#  |  _|" <|  \| |>    | |    |  _|"   \| |_) |/ \| |_) |/ \| |_) |/    |_"_|  <\___ \/  |  _|" U  u   \/ _ \/  \| |\| |/| | | |  |_"_|      | |  /| | | |  
+#  | |___ U| |\  |u   /| |\   | |___    |  _ <    |  __/    |  _ <       | |    u___) |  | |___ /___\  / ___ \   | |_| |U| |_| |\  | |      /| |\ U| |_| |\ 
+#  |_____| |_| \_|   u |_|U   |_____|   |_| \_\   |_|       |_| \_\    U/| |\u  |____/>> |_____|__"__|/_/   \_\ <<\___/  |____/ uU/| |\u   u |_|U  |____/ u 
+#  <<   >> ||   \\,-._// \\_  <<   >>   //   \\_  ||>>_     //   \\_.-,_|___|_,-.)(  (__)<<   >>       \\    >>(__) )(    |||_.-,_|___|_,-._// \\_  |||_    
+# (__) (__)(_")  (_/(__) (__)(__) (__) (__)  (__)(__)__)   (__)  (__)\_)-' '-(_/(__)    (__) (__)     (__)  (__)   (__)  (__)_)\_)-' '-(_/(__) (__)(__)_)   
+#                                                                                                                © Speranza Ranieri (sranieri@unisa.it)
+#
+
+-w /usr/bin/apt     -p x -k software_installer
+-w /usr/bin/apt-get -p x -k software_installer
+-w /usr/bin/dpkg    -p x -k software_installer
+-w /usr/bin/snap    -p x -k software_installer
+
+# Optional language ecosystems (enable if present/needed)
+-w /usr/bin/pip     -p x -k software_installer
+-w /usr/bin/pip3    -p x -k software_installer
+-w /usr/bin/npm     -p x -k software_installer
+-w /usr/bin/gem     -p x -k software_installer

@@ -1,0 +1,13 @@
+sudo apt-get update
+sudo apt-get install -y auditd audispd-plugins
+
+sudo systemctl enable --now auditd
+
+# Check syntax / duplicates
+sudo augenrules --check
+
+# Load rules from /etc/audit/rules.d/
+sudo augenrules --load
+
+# Verify active rules
+sudo auditctl -l
