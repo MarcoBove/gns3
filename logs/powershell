@@ -1,0 +1,29 @@
+# 1. Crea la cartella di destinazione
+$dest = "C:\Backup_Logs"
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+
+Write-Host "Sto iniziando il backup di TUTTI i log..." -ForegroundColor Cyan
+
+# 2. Ottiene la lista di tutti i log attivi nel sistema
+$allLogs = Get-WinEvent -ListLog * -Force
+
+# 3. Ciclo per esportare ogni singolo log
+foreach ($log in $allLogs) {
+    # Se il log è vuoto o ha 0 record, lo saltiamo per fare prima
+    if ($log.RecordCount -gt 0) {
+        # Puliamo il nome del file (sostituisce / con _ per evitare errori)
+        $cleanName = $log.LogName -replace "/", "_" -replace " ", "_"
+        $targetFile = "$dest\$cleanName.evtx"
+        
+        try {
+            # Questo comando crea una copia sicura anche se il file è in uso!
+            wevtutil epl "$($log.LogName)" "$targetFile"
+            Write-Host "[OK] Salvato: $($log.LogName)" -ForegroundColor Green
+        } catch {
+            Write-Host "[ERRORE] Impossibile accedere a: $($log.LogName)" -ForegroundColor Red
+        }
+    }
+}
+
+Write-Host "Finito! Trovi tutti i file copiati in $dest" -ForegroundColor Yellow
+Invoke-Item $dest
