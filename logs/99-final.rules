@@ -4,7 +4,6 @@
 -r 0
 
 -a always,exit -F arch=b64 -S connect,accept -F auid>=1000 -F auid!=unset -k external_access
--a always,exit -F arch=b32 -S connect,accept -F auid>=1000 -F auid!=unset -k external_access
 
 -a always,exit -F arch=b32 -S chmod,fchmod,fchmodat,setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F exit=-EACCES -F auid>=1000 -F auid!=unset -k unsuccessful_perm_change
 -a always,exit -F arch=b64 -S chmod,fchmod,fchmodat,setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F exit=-EACCES -F auid>=1000 -F auid!=unset -k unsuccessful_perm_change
@@ -135,4 +134,3 @@
 -w /usr/bin/netstat -p x -k susp_activity
 
 -e 2
-
