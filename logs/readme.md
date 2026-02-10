@@ -23,3 +23,5 @@ logman query MyKernelTrace -ets
 Get-WinEvent -Path "C:\KernelLog.etl" -Oldest
 
 sudo tar -czvf logs_backup.tar.gz /var/log/
+
+tar -czvf /tmp/logs_opnsense.tar.gz /var/log/
