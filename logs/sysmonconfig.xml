@@ -1,37 +1,3 @@
-﻿<!--
-  
-  U _____ u _   _     _____  U _____ u   ____      ____      ____                ____   U _____ u     ____      __   __ ____      __  __    U  ___ u  _   _     
-\| ___"|/| \ |"|   |_ " _| \| ___"|/U |  _"\ u U|  _"\ uU |  _"\ u     ___    / __"| u\| ___"|/    / __"| u   \ \ / // __"| u U|' \/ '|u   \/"_ \/ | \ |"|    
- |  _|" <|  \| |>    | |    |  _|"   \| |_) |/ \| |_) |/ \| |_) |/    |_"_|  <\___ \/  |  _|" U  u<\___ \/     \ V /<\___ \/  \| |\/| |/   | | | |<|  \| |>   
- | |___ U| |\  |u   /| |\   | |___    |  _ <    |  __/    |  _ <       | |    u___) |  | |___ /___\u___) |    U_|"|_uu___) |   | |  | |.-,_| |_| |U| |\  |u   
- |_____| |_| \_|   u |_|U   |_____|   |_| \_\   |_|       |_| \_\    U/| |\u  |____/>> |_____|__"__|____/>>     |_|  |____/>>  |_|  |_| \_)-\___/  |_| \_|    
- <<   >> ||   \\,-._// \\_  <<   >>   //   \\_  ||>>_     //   \\_.-,_|___|_,-.)(  (__)<<   >>      )(  (__).-,//|(_  )(  (__)<<,-,,-.       \\    ||   \\,-. 
-(__) (__)(_")  (_/(__) (__)(__) (__) (__)  (__)(__)__)   (__)  (__)\_)-' '-(_/(__)    (__) (__)    (__)      \_) (__)(__)      (./  \.)     (__)   (_")  (_/  
-                                                                                                                    © Speranza Ranieri (sranieri@unisa.it)
-  
-  This Sysmon configuration is designed for Windows 11 workstations where you want full visibility of internal network traffic
-  and browser activity, while still leveraging curated detection-focused rules from sysmon-modular for high-signal endpoint behaviors.
-  
-  Key behaviors
-  -- Process creation (Event ID 1): Uses sysmon-modular rules to log process executions that are most relevant for detection
-    (LOLBins, suspicious patterns, MITRE-aligned detections) and applies curated noise reductions.
-  -- Network connections (Event ID 3): Logs all initiated outbound connections, including internal east-west and browser traffic.
-    Only loopback and link-local destinations are excluded to reduce meaningless noise.
-  -- DNS queries (Event ID 22): Logs all DNS queries.
-  -- Image loads / DLL loads (Event ID 7): Uses sysmon-modular include/exclude logic to detect suspicious module loads and reduce
-    common workstation noise.
-  -- Process access (Event ID 10): Uses sysmon-modular logic to detect suspicious handle access patterns with known-good exclusions.
-  -- Registry events (Event ID 12/13/14): Uses sysmon-modular rules focused on persistence/tampering while excluding common benign activity.
-  -- Named pipes (Event ID 17/18): Uses sysmon-modular logic to catch suspicious pipe activity and suppress common noise from legitimate software.
-  -- Workstation-friendly file telemetry: File creation/deletion is scoped to typical attacker drop locations.
-  Privacy / operational notes
-  -- Clipboard logging is enabled (Event ID 24): this can capture sensitive user data—confirm this aligns with policy and local regulations.
-  ArchiveDirectory is enabled: this can increase disk usage and may retain sensitive artifacts.
-  
-  This configuration file was obtained by combining some of the rules defined in https://raw.githubusercontent.com/olafhartong/sysmon-modular/master/sysmonconfig.xml
-  with others defined by the authors of the file.
-  
--->
 <Sysmon schemaversion="4.90">
   <HashAlgorithms>sha256</HashAlgorithms>
   <DnsLookup>False</DnsLookup>
