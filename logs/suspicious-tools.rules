@@ -1,15 +1,4 @@
-# Linux Audit Daemon - Log collection Rules
-#
-# U _____ u _   _     _____  U _____ u   ____      ____      ____                ____   U _____ u         _       _   _   ____              _____   ____    
-# \| ___"|/| \ |"|   |_ " _| \| ___"|/U |  _"\ u U|  _"\ uU |  _"\ u     ___    / __"| u\| ___"|/     U  /"\  uU |"|u| | |  _"\    ___     |_ " _| |  _"\   
-#  |  _|" <|  \| |>    | |    |  _|"   \| |_) |/ \| |_) |/ \| |_) |/    |_"_|  <\___ \/  |  _|" U  u   \/ _ \/  \| |\| |/| | | |  |_"_|      | |  /| | | |  
-#  | |___ U| |\  |u   /| |\   | |___    |  _ <    |  __/    |  _ <       | |    u___) |  | |___ /___\  / ___ \   | |_| |U| |_| |\  | |      /| |\ U| |_| |\ 
-#  |_____| |_| \_|   u |_|U   |_____|   |_| \_\   |_|       |_| \_\    U/| |\u  |____/>> |_____|__"__|/_/   \_\ <<\___/  |____/ uU/| |\u   u |_|U  |____/ u 
-#  <<   >> ||   \\,-._// \\_  <<   >>   //   \\_  ||>>_     //   \\_.-,_|___|_,-.)(  (__)<<   >>       \\    >>(__) )(    |||_.-,_|___|_,-._// \\_  |||_    
-# (__) (__)(_")  (_/(__) (__)(__) (__) (__)  (__)(__)__)   (__)  (__)\_)-' '-(_/(__)    (__) (__)     (__)  (__)   (__)  (__)_)\_)-' '-(_/(__) (__)(__)_)   
-#  
-                                                                                                              © Speranza Ranieri (sranieri@unisa.it)
-# high-fp tool execution watches
+
 -w /usr/bin/wget    -p x -k susp_activity
 -w /usr/bin/curl    -p x -k susp_activity
 -w /usr/bin/base64  -p x -k susp_activity
@@ -30,5 +19,6 @@
 -w /usr/bin/wireshark -p x -k susp_activity
 -w /usr/bin/tshark    -p x -k susp_activity
 -w /usr/bin/rawshark  -p x -k susp_activity
+
 
 -w /usr/bin/nmap    -p x -k susp_activity
