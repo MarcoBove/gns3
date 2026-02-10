@@ -1,11 +1,12 @@
-
--w /usr/bin/apt     -p x -k software_installer
+-w /usr/bin/apt -p x -k software_installer
 -w /usr/bin/apt-get -p x -k software_installer
--w /usr/bin/dpkg    -p x -k software_installer
--w /usr/bin/snap    -p x -k software_installer
+-w /usr/bin/dpkg -p x -k software_installer
 
--w /usr/bin/pip     -p x -k software_installer
--w /usr/bin/pip3    -p x -k software_installer
--w /usr/bin/npm     -p x -k software_installer
+-w /usr/bin/snap -p x -k software_installer
 
--w /usr/bin/gem     -p x -k software_installer
+-w /usr/bin/pip -p x -k software_installer
+-w /usr/bin/pip3 -p x -k software_installer
+-w /usr/bin/npm -p x -k software_installer
+
+-w /usr/bin/gem -p x -k software_installer
+
