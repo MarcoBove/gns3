@@ -22,9 +22,4 @@ logman query MyKernelTrace -ets
 
 Get-WinEvent -Path "C:\KernelLog.etl" -Oldest
 
-
-PS C:\Users\Student\Desktop\Sysmon>
-sed -i 's/\r//' /etc/audit/rules.d/99-thesis.rules
-
-
-ls -1 /usr/bin/wget /usr/bin/curl /usr/bin/base64 /bin/nc /bin/netcat /usr/bin/ncat /usr/bin/socat /usr/bin/ssh /usr/bin/scp /usr/bin/sftp /usr/bin/ftp /usr/bin/ss /usr/bin/netstat /usr/bin/wireshark /usr/bin/tshark /usr/bin/rawshark /usr/bin/nmap
+sudo tar -czvf logs_backup.tar.gz /var/log/
